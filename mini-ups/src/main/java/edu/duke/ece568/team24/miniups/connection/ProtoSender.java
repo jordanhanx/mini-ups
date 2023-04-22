@@ -1,5 +1,7 @@
 package edu.duke.ece568.team24.miniups.connection;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -25,7 +27,11 @@ public class ProtoSender implements CommandLineRunner {
                 .setIsAmazon(false)
                 .addAllTrucks(List.of(truck1, truck2))
                 .build();
-        System.out.println(uconnect.toString());
+        ByteArrayOutputStream outBytes = new ByteArrayOutputStream();
+        uconnect.writeDelimitedTo(outBytes);
+        ByteArrayInputStream inBytes = new ByteArrayInputStream(outBytes.toByteArray());
+        UConnect uconnect2 = UConnect.parseDelimitedFrom(inBytes);
+        System.out.println(uconnect2.toString());
         // }
     }
 }
