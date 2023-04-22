@@ -33,6 +33,16 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
+compileJava.dependsOn generateProto
+
+sourceSets {
+    main {
+        java {
+            srcDirs += ['build/generated/source/proto/main/java', 'build/generated/source/proto/test/java']
+        }
+    }
+}
+
 protobuf {
   protoc {
 	if (System.getProperty("os.name").toLowerCase().contains("mac")) {
@@ -44,12 +54,3 @@ protobuf {
   }
 }
 
-sourceSets {
-    main {
-        java {
-            srcDirs += ['build/generated/source/proto/main/java', 'build/generated/source/proto/test/java']
-        }
-    }
-}
-
-compileJava.dependsOn generateProto
