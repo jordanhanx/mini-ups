@@ -35,7 +35,12 @@ tasks.named('test') {
 
 protobuf {
   protoc {
-    path = 'src/main/proto/protoc'
+	if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+		path = 'src/main/proto/protoc-mac'
+	}
+	else {
+    	path = 'src/main/proto/protoc-linux'
+	}
   }
 }
 
