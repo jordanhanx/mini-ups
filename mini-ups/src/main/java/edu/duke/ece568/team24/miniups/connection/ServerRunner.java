@@ -61,7 +61,7 @@ public class ServerRunner implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws IOException {
+    public void run(String... args) throws Exception {
         connectToAmazon(amazonHost, amazonPort);
         connectToWorld(worldHost, worldPort);
 

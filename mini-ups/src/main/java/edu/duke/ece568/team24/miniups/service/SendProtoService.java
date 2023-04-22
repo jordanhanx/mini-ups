@@ -7,8 +7,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.stereotype.Service;
@@ -26,7 +27,7 @@ public class SendProtoService {
     private Map<Long, UGoPickup> goPickupMap = new ConcurrentHashMap<>();
     private Map<Long, UGoDeliver> goDeliverMap = new ConcurrentHashMap<>();
     private Map<Long, UQuery> queryMap = new ConcurrentHashMap<>();
-    private List<Long> ackToWorld = new CopyOnWriteArrayList<>();
+    private Set<Long> ackToWorld = new CopyOnWriteArraySet<>();
 
     private Map<Long, UAConnectedToWorld> connectedToWorldMap = new ConcurrentHashMap<>();
     private Map<Long, UADestinationUpdated> destinationUpdatedMap = new ConcurrentHashMap<>();
@@ -34,7 +35,7 @@ public class SendProtoService {
     private Map<Long, UAOrderDeparture> orderDepartureMap = new ConcurrentHashMap<>();
     private Map<Long, UAOrderDelivered> orderDeliveredMap = new ConcurrentHashMap<>();
     private Map<Long, Err> errMap = new ConcurrentHashMap<>();
-    private List<Long> ackToAmazon = new CopyOnWriteArrayList<>();
+    private Set<Long> ackToAmazon = new CopyOnWriteArraySet<>();
 
     public void removeMsgByACK(Long ack) {
         if (goPickupMap.containsKey(ack)) {
@@ -56,7 +57,7 @@ public class SendProtoService {
         } else if (errMap.containsKey(ack)) {
             errMap.containsKey(ack);
         } else {
-            logger.error("invalid ACK =" + ack);
+            logger.error("Not found Msg by ACK = " + ack);
         }
     }
 
