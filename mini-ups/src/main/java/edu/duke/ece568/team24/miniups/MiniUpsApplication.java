@@ -1,4 +1,4 @@
-package edu.duke.ece568.sp.miniups;
+package edu.duke.ece568.team24.miniups;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
