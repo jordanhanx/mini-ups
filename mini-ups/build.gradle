@@ -32,4 +32,10 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+protobuf {
+  protoc {
+    path = 'src/main/proto/protoc'
+  }
+}
   
