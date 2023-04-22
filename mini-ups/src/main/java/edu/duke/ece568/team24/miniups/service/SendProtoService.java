@@ -142,14 +142,21 @@ public class SendProtoService {
     }
 
     public void sendProtoToWorld(OutputStream toWorld) {
-        UCommands commands = UCommands.newBuilder()
-                .addAllPickups(goPickupMap.values())
-                .addAllDeliveries(goDeliverMap.values())
-                .addAllQueries(queryMap.values())
-                .addAllAcks(ackToWorld)
-                .build();
+        UCommands.Builder cmdsBldr = UCommands.newBuilder();
+        if (goPickupMap.size() > 0) {
+            cmdsBldr.addAllPickups(goPickupMap.values());
+        }
+        if (goDeliverMap.size() > 0) {
+            cmdsBldr.addAllDeliveries(goDeliverMap.values());
+        }
+        if (queryMap.size() > 0) {
+            cmdsBldr.addAllQueries(queryMap.values());
+        }
+        if (ackToWorld.size() > 0) {
+            cmdsBldr.addAllAcks(ackToWorld);
+        }
         try {
-            commands.writeDelimitedTo(toWorld);
+            cmdsBldr.build().writeDelimitedTo(toWorld);
             ackToWorld.clear();
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
@@ -157,17 +164,30 @@ public class SendProtoService {
     }
 
     public void sendProtoToAmazon(OutputStream toAmazon) {
-        UACommands commands = UACommands.newBuilder()
-                .addAllConnectedtoworld(connectedToWorldMap.values())
-                .addAllDestinationupdated(destinationUpdatedMap.values())
-                .addAllTruckarrived(truckArrivedMap.values())
-                .addAllOrderdeparture(orderDepartureMap.values())
-                .addAllOrderdelivered(orderDeliveredMap.values())
-                .addAllError(errMap.values())
-                .addAllAcks(ackToAmazon)
-                .build();
+        UACommands.Builder cmdsBldr = UACommands.newBuilder();
+        if (connectedToWorldMap.size() > 0) {
+            cmdsBldr.addAllConnectedtoworld(connectedToWorldMap.values());
+        }
+        if (destinationUpdatedMap.size() > 0) {
+            cmdsBldr.addAllDestinationupdated(destinationUpdatedMap.values());
+        }
+        if (truckArrivedMap.size() > 0) {
+            cmdsBldr.addAllTruckarrived(truckArrivedMap.values());
+        }
+        if (orderDepartureMap.size() > 0) {
+            cmdsBldr.addAllOrderdeparture(orderDepartureMap.values());
+        }
+        if (orderDeliveredMap.size() > 0) {
+            cmdsBldr.addAllOrderdelivered(orderDeliveredMap.values());
+        }
+        if (errMap.size() > 0) {
+            cmdsBldr.addAllError(errMap.values());
+        }
+        if (ackToAmazon.size() > 0) {
+            cmdsBldr.addAllAcks(ackToAmazon);
+        }
         try {
-            commands.writeDelimitedTo(toAmazon);
+            cmdsBldr.build().writeDelimitedTo(toAmazon);
             ackToAmazon.clear();
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
