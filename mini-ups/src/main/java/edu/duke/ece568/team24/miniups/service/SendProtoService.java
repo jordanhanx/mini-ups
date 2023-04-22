@@ -13,18 +13,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.stereotype.Service;
 
-import edu.duke.ece568.team24.miniups.protobuf.amazonups.Err;
-import edu.duke.ece568.team24.miniups.protobuf.amazonups.UACommands;
-import edu.duke.ece568.team24.miniups.protobuf.amazonups.UAConnectedToWorld;
-import edu.duke.ece568.team24.miniups.protobuf.amazonups.UADestinationUpdated;
-import edu.duke.ece568.team24.miniups.protobuf.amazonups.UAOrderDelivered;
-import edu.duke.ece568.team24.miniups.protobuf.amazonups.UAOrderDeparture;
-import edu.duke.ece568.team24.miniups.protobuf.amazonups.UATruckArrived;
-import edu.duke.ece568.team24.miniups.protobuf.worldups.UCommands;
-import edu.duke.ece568.team24.miniups.protobuf.worldups.UDeliveryLocation;
-import edu.duke.ece568.team24.miniups.protobuf.worldups.UGoDeliver;
-import edu.duke.ece568.team24.miniups.protobuf.worldups.UGoPickup;
-import edu.duke.ece568.team24.miniups.protobuf.worldups.UQuery;
+import edu.duke.ece568.team24.miniups.protobuf.amazonups.*;
+import edu.duke.ece568.team24.miniups.protobuf.worldups.*;
 
 @Service
 public class SendProtoService {
@@ -76,8 +66,8 @@ public class SendProtoService {
         goPickupMap.put(seqNum, goPickup);
     }
 
-    public void postUGoUGoDeliver(int truckid, int whid, int packageid, int x, int y) {
-        Long seqNum = seqNumCounter.incrementAndGet();
+    public void postUGoUGoDeliver(int truckid, long packageid, int x, int y) {
+        long seqNum = seqNumCounter.incrementAndGet();
         UDeliveryLocation deliveryLocation = UDeliveryLocation.newBuilder().setPackageid(packageid).setX(x).setY(y)
                 .build();
         UGoDeliver goDeliver = UGoDeliver.newBuilder().setSeqnum(seqNum).setTruckid(truckid)
@@ -87,57 +77,57 @@ public class SendProtoService {
     }
 
     public void postUQuery(int truckid) {
-        Long seqNum = seqNumCounter.incrementAndGet();
+        long seqNum = seqNumCounter.incrementAndGet();
         UQuery query = UQuery.newBuilder().setSeqnum(seqNum).setTruckid(truckid).build();
         queryMap.put(seqNum, query);
     }
 
-    public void postAckToWorld(Long ack) {
+    public void postAckToWorld(long ack) {
         ackToWorld.add(ack);
     }
 
     public void postUAConnectedToWorld(int worldid) {
-        Long seqNum = seqNumCounter.incrementAndGet();
+        long seqNum = seqNumCounter.incrementAndGet();
         UAConnectedToWorld connectedToWorld = UAConnectedToWorld.newBuilder().setSeqnum(seqNum).setWorldid(worldid)
                 .build();
         connectedToWorldMap.put(seqNum, connectedToWorld);
     }
 
     public void postUADestinationUpdated(int orderid, int x, int y) {
-        Long seqNum = seqNumCounter.incrementAndGet();
+        long seqNum = seqNumCounter.incrementAndGet();
         UADestinationUpdated destinationUpdated = UADestinationUpdated.newBuilder().setSeqnum(seqNum)
                 .setOrderid(orderid).setDestinationx(x).setDestinationy(y).build();
         destinationUpdatedMap.put(seqNum, destinationUpdated);
     }
 
     public void postUATruckArrived(int truckid, int whid) {
-        Long seqNum = seqNumCounter.incrementAndGet();
+        long seqNum = seqNumCounter.incrementAndGet();
         UATruckArrived truckArrived = UATruckArrived.newBuilder().setSeqnum(seqNum).setTruckid(truckid).setWhnum(whid)
                 .build();
         truckArrivedMap.put(seqNum, truckArrived);
     }
 
-    public void postUAOrderDeparture(int orderid, int packageid, int trackingnum) {
-        Long seqNum = seqNumCounter.incrementAndGet();
+    public void postUAOrderDeparture(int orderid, long packageid, int trackingnum) {
+        long seqNum = seqNumCounter.incrementAndGet();
         UAOrderDeparture orderDeparture = UAOrderDeparture.newBuilder().setSeqnum(seqNum).setOrderid(orderid)
                 .setPackageid(packageid).setTrackingnum(trackingnum).build();
         orderDepartureMap.put(seqNum, orderDeparture);
     }
 
-    public void postUAOrderDelivered(int packageid, int x, int y) {
-        Long seqNum = seqNumCounter.incrementAndGet();
+    public void postUAOrderDelivered(long packageid, int x, int y) {
+        long seqNum = seqNumCounter.incrementAndGet();
         UAOrderDelivered orderDelivered = UAOrderDelivered.newBuilder().setSeqnum(seqNum).setPackageid(packageid)
                 .setDestinationx(x).setDestinationy(y).build();
         orderDeliveredMap.put(seqNum, orderDelivered);
     }
 
-    public void postErr(String msg, int originseqnum) {
-        Long seqNum = seqNumCounter.incrementAndGet();
+    public void postErr(String msg, long originseqnum) {
+        long seqNum = seqNumCounter.incrementAndGet();
         Err err = Err.newBuilder().setSeqnum(seqNum).setErr(msg).setOriginseqnum(originseqnum).build();
         errMap.put(seqNum, err);
     }
 
-    public void postAckToAmazon(Long ack) {
+    public void postAckToAmazon(long ack) {
         ackToAmazon.add(ack);
     }
 

@@ -13,8 +13,8 @@ public class ThreadPoolConfig {
     @Bean
     public ThreadPoolTaskExecutor threadPoolTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(4); // Set the core pool size
-        executor.setMaxPoolSize(4); // Set the maximum pool size
+        executor.setCorePoolSize(2); // Set the core pool size
+        executor.setMaxPoolSize(2); // Set the maximum pool size
         executor.setQueueCapacity(100); // Set the queue capacity
         executor.setThreadNamePrefix("MyRecvThread-"); // Set the thread name prefix
         executor.initialize(); // Initialize the executor
