@@ -1,5 +1,6 @@
-package edu.duke.ece568.sp.miniups.db;
+package edu.duke.ece568.sp.miniups.controller;
 
+import edu.duke.ece568.sp.miniups.service.MyOrderService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,8 +11,8 @@ public class MyOrderController {
 
     private final MyOrderService orderService;
 
-    public MyOrderController(MyOrderService rhsorderService){
-        this.orderService = rhsorderService;
+    public MyOrderController(MyOrderService orderService){
+        this.orderService = orderService;
     }
     @GetMapping
 //    public String getStudents(){
@@ -19,7 +20,7 @@ public class MyOrderController {
 //    }
     public void getOrders(){
 
-        orderService.createOrder("david");
+        orderService.createOrder();
 
     }
 }
