@@ -7,7 +7,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "package")
-public class Package {
+public class MyPackage {
 
     @Id
     @SequenceGenerator(
@@ -37,16 +37,16 @@ public class Package {
     @OnDelete(action = OnDeleteAction.CASCADE) // 待定
     private Truck truck;
 
-    public Package() {
+    public MyPackage() {
     }
 
-    public Package(String description, MyOrder myorder, Truck truck) {
+    public MyPackage(String description, MyOrder myorder, Truck truck) {
         this.description = description;
         this.myorder = myorder;
         this.truck = truck;
     }
 
-    public Package(MyOrder myorder, Truck truck) {
+    public MyPackage(MyOrder myorder, Truck truck) {
         this.myorder = myorder;
         this.truck = truck;
     }

@@ -1,7 +1,7 @@
 package edu.duke.ece568.sp.miniups.service;
 
 import edu.duke.ece568.sp.miniups.model.*;
-import edu.duke.ece568.sp.miniups.model.Package;
+
 import edu.duke.ece568.sp.miniups.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ public class MyOrderService {
     @Autowired
     private final TruckRepository truckRepository;
     @Autowired
-    private final PackageRepository packageRepository;
+    private final MyPackageRepository mypackageRepository;
     @Autowired
     private final WarehouseRepository warehouseRepository;
 
@@ -30,11 +30,11 @@ public class MyOrderService {
 //    }
 
     // 删
-    MyOrderService(MyOrderRepository myorderRepository, AccountRepository accountRepository, TruckRepository truckRepository, PackageRepository packageRepository, WarehouseRepository warehouseRepository) {
+    MyOrderService(MyOrderRepository myorderRepository, AccountRepository accountRepository, TruckRepository truckRepository, MyPackageRepository mypackageRepository, WarehouseRepository warehouseRepository) {
         this.myorderRepository = myorderRepository;
         this.accountRepository = accountRepository;
         this.truckRepository = truckRepository;
-        this.packageRepository = packageRepository;
+        this.mypackageRepository = mypackageRepository;
         this.warehouseRepository = warehouseRepository;
     }
 
@@ -45,8 +45,8 @@ public class MyOrderService {
         myorderRepository.save(myorder);
         Truck truck = new Truck(0,1, IDLE);
         truckRepository.save(truck);
-        Package mypackage = new Package("shampoo",myorder,truck);
-        packageRepository.save(mypackage);
+        MyPackage mypackage = new MyPackage("shampoo",myorder,truck);
+        mypackageRepository.save(mypackage);
         Warehouse warehouse = new Warehouse(5,7);
         warehouseRepository.save(warehouse);
 
