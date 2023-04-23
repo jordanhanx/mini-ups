@@ -96,6 +96,11 @@ public class ParseProtoService {
                     sendProtoService.removeMsgByACK(ack);
                     logger.info(ack.toString());
                 });
+        cmds.getConnectedtoworldList().stream()
+                .peek(c -> {
+                    sendProtoService.postAckToAmazon(c.getSeqnum());
+                    logger.error(c.toString());
+                });
         cmds.getOrdercreatedList().stream()
                 .peek(o -> {
                     sendProtoService.postAckToAmazon(o.getSeqnum());

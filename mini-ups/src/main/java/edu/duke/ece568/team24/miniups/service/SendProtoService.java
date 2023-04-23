@@ -132,7 +132,7 @@ public class SendProtoService {
         ackToAmazon.add(ack);
     }
 
-    public void sendProtoToWorld(OutputStream toWorld) {
+    public void sendProtoToWorld(OutputStream toWorld) throws IOException {
         UCommands.Builder cmdsBldr = UCommands.newBuilder();
         if (goPickupMap.size() > 0) {
             cmdsBldr.addAllPickups(goPickupMap.values());
@@ -151,10 +151,11 @@ public class SendProtoService {
             ackToWorld.clear();
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
+            throw e;
         }
     }
 
-    public void sendProtoToAmazon(OutputStream toAmazon) {
+    public void sendProtoToAmazon(OutputStream toAmazon) throws IOException {
         UACommands.Builder cmdsBldr = UACommands.newBuilder();
         if (connectedToWorldMap.size() > 0) {
             cmdsBldr.addAllConnectedtoworld(connectedToWorldMap.values());
@@ -182,6 +183,7 @@ public class SendProtoService {
             ackToAmazon.clear();
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
+            throw e;
         }
     }
 

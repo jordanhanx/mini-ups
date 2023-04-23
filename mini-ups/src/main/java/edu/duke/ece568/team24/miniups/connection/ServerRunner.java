@@ -90,11 +90,21 @@ public class ServerRunner implements CommandLineRunner {
         });
 
         scheduler.scheduleAtFixedRate(() -> {
-            sendProtoService.sendProtoToAmazon(toAmazon);
+            try {
+                sendProtoService.sendProtoToAmazon(toAmazon);
+            } catch (Exception e) {
+                logger.error(Thread.currentThread().getName() + ": " + e.getMessage(), e);
+                reConnectAmazon(amazonHost, amazonPort);
+            }
         }, Duration.ofSeconds(1));
 
         scheduler.scheduleAtFixedRate(() -> {
-            sendProtoService.sendProtoToWorld(toWorld);
+            try {
+                sendProtoService.sendProtoToWorld(toWorld);
+            } catch (Exception e) {
+                logger.error(Thread.currentThread().getName() + ": " + e.getMessage(), e);
+                reConnectWorld(worldHost, worldPort);
+            }
         }, Duration.ofSeconds(1));
     }
 
@@ -105,13 +115,12 @@ public class ServerRunner implements CommandLineRunner {
         fromAmazon = amazonSocket.getInputStream();
         AUCommands cmds = AUCommands.parseDelimitedFrom(fromAmazon);
         AUConnectedToWorld conn = cmds.getConnectedtoworld(0);
-        UACommands.newBuilder().setAcks(0, conn.getSeqnum()).build().writeDelimitedTo(toAmazon);
-        worldid = cmds.getConnectedtoworld(0).getWorldid();
+        worldid = conn.getWorldid();
     }
 
-    public void connectToWorld(String worString, int worldPort)
+    public void connectToWorld(String worldHost, int worldPort)
             throws IOException {
-        worldSocket = new Socket(worString, worldPort);
+        worldSocket = new Socket(worldHost, worldPort);
         toWorld = worldSocket.getOutputStream();
         fromWorld = worldSocket.getInputStream();
         UInitTruck truck1 = UInitTruck.newBuilder().setId(1).setX(0).setY(0).build();
@@ -143,9 +152,9 @@ public class ServerRunner implements CommandLineRunner {
         }
     }
 
-    public void reConnectWorld(String worString, int worldPort) {
+    public void reConnectWorld(String worldHost, int worldPort) {
         try {
-            worldSocket = new Socket(worString, worldPort);
+            worldSocket = new Socket(worldHost, worldPort);
             toWorld = worldSocket.getOutputStream();
             fromWorld = worldSocket.getInputStream();
             UConnect.newBuilder().setWorldid(worldid).setIsAmazon(false).build().writeDelimitedTo(toWorld);
