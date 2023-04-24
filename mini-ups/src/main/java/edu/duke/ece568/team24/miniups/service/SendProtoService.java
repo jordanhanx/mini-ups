@@ -57,7 +57,7 @@ public class SendProtoService {
         } else if (errMap.containsKey(ack)) {
             errMap.containsKey(ack);
         } else {
-            logger.error("Not found Msg by ACK = " + ack);
+            logger.warn(Thread.currentThread().getName() + "\n Not found Msg by ACK = " + ack);
         }
     }
 
@@ -133,57 +133,70 @@ public class SendProtoService {
     }
 
     public void sendProtoToWorld(OutputStream toWorld) throws IOException {
+        boolean isEmpty = true;
         UCommands.Builder cmdsBldr = UCommands.newBuilder();
         if (goPickupMap.size() > 0) {
             cmdsBldr.addAllPickups(goPickupMap.values());
+            isEmpty = false;
         }
         if (goDeliverMap.size() > 0) {
             cmdsBldr.addAllDeliveries(goDeliverMap.values());
+            isEmpty = false;
         }
         if (queryMap.size() > 0) {
             cmdsBldr.addAllQueries(queryMap.values());
+            isEmpty = false;
         }
         if (ackToWorld.size() > 0) {
             cmdsBldr.addAllAcks(ackToWorld);
+            isEmpty = false;
         }
-        try {
-            cmdsBldr.build().writeDelimitedTo(toWorld);
+        if (!isEmpty) {
+            UCommands msgToWorld = cmdsBldr.build();
+            msgToWorld.writeDelimitedTo(toWorld);
+            logger.debug(
+                    Thread.currentThread().getName() + "\nTo World:\n" + msgToWorld.toString());
             ackToWorld.clear();
-        } catch (IOException e) {
-            logger.error(e.getMessage(), e);
-            throw e;
         }
     }
 
     public void sendProtoToAmazon(OutputStream toAmazon) throws IOException {
+        boolean isEmpty = true;
         UACommands.Builder cmdsBldr = UACommands.newBuilder();
         if (connectedToWorldMap.size() > 0) {
             cmdsBldr.addAllConnectedtoworld(connectedToWorldMap.values());
+            isEmpty = false;
         }
         if (destinationUpdatedMap.size() > 0) {
             cmdsBldr.addAllDestinationupdated(destinationUpdatedMap.values());
+            isEmpty = false;
         }
         if (truckArrivedMap.size() > 0) {
             cmdsBldr.addAllTruckarrived(truckArrivedMap.values());
+            isEmpty = false;
         }
         if (orderDepartureMap.size() > 0) {
             cmdsBldr.addAllOrderdeparture(orderDepartureMap.values());
+            isEmpty = false;
         }
         if (orderDeliveredMap.size() > 0) {
             cmdsBldr.addAllOrderdelivered(orderDeliveredMap.values());
+            isEmpty = false;
         }
         if (errMap.size() > 0) {
             cmdsBldr.addAllError(errMap.values());
+            isEmpty = false;
         }
         if (ackToAmazon.size() > 0) {
             cmdsBldr.addAllAcks(ackToAmazon);
+            isEmpty = false;
         }
-        try {
-            cmdsBldr.build().writeDelimitedTo(toAmazon);
+        if (!isEmpty) {
+            UACommands msgToAmazon = cmdsBldr.build();
+            msgToAmazon.writeDelimitedTo(toAmazon);
+            logger.debug(
+                    Thread.currentThread().getName() + "\nTo Amazon:\n" + msgToAmazon.toString());
             ackToAmazon.clear();
-        } catch (IOException e) {
-            logger.error(e.getMessage(), e);
-            throw e;
         }
     }
 
