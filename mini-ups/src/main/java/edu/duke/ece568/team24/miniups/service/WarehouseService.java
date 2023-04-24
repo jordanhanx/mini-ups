@@ -1,5 +1,8 @@
 package edu.duke.ece568.team24.miniups.service;
 
+import edu.duke.ece568.team24.miniups.model.Truck;
+import edu.duke.ece568.team24.miniups.model.Warehouse;
+import edu.duke.ece568.team24.miniups.repository.WarehouseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

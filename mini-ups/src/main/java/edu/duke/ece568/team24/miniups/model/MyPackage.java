@@ -1,9 +1,8 @@
 package edu.duke.ece568.team24.miniups.model;
 
+import edu.duke.ece568.team24.miniups.model.myenum.MyPackageStatus;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-
-import edu.duke.ece568.team24.miniups.model.myenum.MyPackageStatus;
 
 import javax.persistence.*;
 

@@ -1,13 +1,11 @@
 package edu.duke.ece568.team24.miniups.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import edu.duke.ece568.team24.miniups.model.MyPackage;
 import edu.duke.ece568.team24.miniups.model.Truck;
 import edu.duke.ece568.team24.miniups.repository.TruckRepository;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import static edu.duke.ece568.team24.miniups.model.myenum.TruckStatus.IDLE;
 
 import java.util.List;
