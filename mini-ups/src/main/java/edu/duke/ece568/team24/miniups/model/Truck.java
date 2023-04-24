@@ -1,7 +1,9 @@
-package edu.duke.ece568.sp.miniups.model;
-import edu.duke.ece568.sp.miniups.model.myenum.TruckStatus;
+package edu.duke.ece568.team24.miniups.model;
 
 import javax.persistence.*;
+
+import edu.duke.ece568.team24.miniups.model.myenum.TruckStatus;
+
 import java.util.List;
 
 @Entity
@@ -9,15 +11,8 @@ import java.util.List;
 public class Truck {
 
     @Id
-    @SequenceGenerator(
-            name = "truck_sequence",
-            sequenceName = "truck_sequence",
-            allocationSize = 1
-    )
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "truck_sequence"
-    )
+    @SequenceGenerator(name = "truck_sequence", sequenceName = "truck_sequence", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "truck_sequence")
     @Column(name = "truck_id")
     private Long truckID;
 

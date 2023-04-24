@@ -1,21 +1,15 @@
-package edu.duke.ece568.sp.miniups.model;
+package edu.duke.ece568.team24.miniups.model;
 
 import javax.persistence.*;
 import java.util.List;
+
 @Entity
 @Table(name = "warehouse")
 public class Warehouse {
 
     @Id
-    @SequenceGenerator(
-            name = "warehouse_sequence",
-            sequenceName = "warehouse_sequence",
-            allocationSize = 1
-    )
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "warehouse_sequence"
-    )
+    @SequenceGenerator(name = "warehouse_sequence", sequenceName = "warehouse_sequence", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "warehouse_sequence")
     @Column(name = "warehouse_id")
     private Long warehouseID;
 

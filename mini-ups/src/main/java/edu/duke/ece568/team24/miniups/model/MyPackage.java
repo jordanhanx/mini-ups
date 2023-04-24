@@ -1,8 +1,9 @@
-package edu.duke.ece568.sp.miniups.model;
+package edu.duke.ece568.team24.miniups.model;
 
-import edu.duke.ece568.sp.miniups.model.myenum.MyPackageStatus;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+
+import edu.duke.ece568.team24.miniups.model.myenum.MyPackageStatus;
 
 import javax.persistence.*;
 
@@ -11,15 +12,8 @@ import javax.persistence.*;
 public class MyPackage {
 
     @Id
-    @SequenceGenerator(
-            name = "package_sequence",
-            sequenceName = "package_sequence",
-            allocationSize = 1
-    )
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "package_sequence"
-    )
+    @SequenceGenerator(name = "package_sequence", sequenceName = "package_sequence", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "package_sequence")
     @Column(name = "package_id") // tracking number
     private Long packageID;
 
@@ -36,7 +30,7 @@ public class MyPackage {
     @Column(name = "origin_y", nullable = false)
     private Integer originY;
 
-    //    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    // @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     // 如果order被删 package也被删
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
@@ -51,7 +45,8 @@ public class MyPackage {
     public MyPackage() {
     }
 
-    public MyPackage(String description, MyPackageStatus status, Integer originX, Integer originY, MyOrder myorder, Truck truck) {
+    public MyPackage(String description, MyPackageStatus status, Integer originX, Integer originY, MyOrder myorder,
+            Truck truck) {
         this.description = description;
         this.status = status;
         this.originX = originX;
@@ -60,7 +55,8 @@ public class MyPackage {
         this.truck = truck;
     }
 
-    public MyPackage(Long packageID, String description, MyPackageStatus status, Integer originX, Integer originY, MyOrder myorder, Truck truck) {
+    public MyPackage(Long packageID, String description, MyPackageStatus status, Integer originX, Integer originY,
+            MyOrder myorder, Truck truck) {
         this.packageID = packageID;
         this.description = description;
         this.status = status;

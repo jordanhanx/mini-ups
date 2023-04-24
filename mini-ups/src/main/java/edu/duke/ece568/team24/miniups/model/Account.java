@@ -1,4 +1,4 @@
-package edu.duke.ece568.sp.miniups.model;
+package edu.duke.ece568.team24.miniups.model;
 
 import javax.persistence.*;
 
@@ -7,15 +7,8 @@ import javax.persistence.*;
 public class Account {
 
     @Id
-    @SequenceGenerator(
-            name = "account_sequence",
-            sequenceName = "account_sequence",
-            allocationSize = 1
-    )
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "account_sequence"
-    )
+    @SequenceGenerator(name = "account_sequence", sequenceName = "account_sequence", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "account_sequence")
     @Column(name = "account_id")
     private Long accountID;
     @Column(name = "account_name", unique = true, nullable = false)
@@ -29,8 +22,8 @@ public class Account {
     @Column(name = "role", nullable = false)
     private String role;
 
-//    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
-//    private List<MyOrder> orders;
+    // @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
+    // private List<MyOrder> orders;
     public Account() {
 
     }

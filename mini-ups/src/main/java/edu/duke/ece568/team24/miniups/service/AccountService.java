@@ -1,17 +1,18 @@
-package edu.duke.ece568.sp.miniups.service;
+package edu.duke.ece568.team24.miniups.service;
 
-import edu.duke.ece568.sp.miniups.model.Account;
-import edu.duke.ece568.sp.miniups.model.MyOrder;
-import edu.duke.ece568.sp.miniups.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.duke.ece568.team24.miniups.model.Account;
+import edu.duke.ece568.team24.miniups.model.MyOrder;
+import edu.duke.ece568.team24.miniups.repository.AccountRepository;
+
+import static edu.duke.ece568.team24.miniups.model.myenum.TruckStatus.IDLE;
+
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-
-import static edu.duke.ece568.sp.miniups.model.myenum.TruckStatus.IDLE;
 
 @Service
 @Transactional
@@ -25,36 +26,35 @@ public class AccountService {
     }
 
     public void createAccount(Account account) {
-//        Account account = new Account("david","123456");
+        // Account account = new Account("david","123456");
         accountRepository.save(account);
 
     }
 
-    public Account updateAccount(Long id, Account rhsaccount){
+    public Account updateAccount(Long id, Account rhsaccount) {
         return accountRepository.findById(id).map(
                 Account -> {
-//                    Account.setAccountID(rhsaccount.getAccountID());
+                    // Account.setAccountID(rhsaccount.getAccountID());
                     Account.setAccountName(rhsaccount.getAccountName());
                     Account.setPassword(rhsaccount.getPassword());
                     Account.setEmail(rhsaccount.getEmail());
                     return accountRepository.save(Account);
-                }
-        ).orElseThrow(() -> new NoSuchElementException("Cannot find this account"));
+                }).orElseThrow(() -> new NoSuchElementException("Cannot find this account"));
     }
 
-    public List<Account> getAllMyAccount(){
+    public List<Account> getAllMyAccount() {
         return accountRepository.findAll();
     }
 
-    public Optional<Account> getAccountById(Long id){
+    public Optional<Account> getAccountById(Long id) {
         return accountRepository.findById(id);
     }
 
-    public void deleteAllMyAccount(){
+    public void deleteAllMyAccount() {
         accountRepository.deleteAll();
     }
 
-    public void deleteAccountById(Long id){
+    public void deleteAccountById(Long id) {
         accountRepository.deleteById(id);
     }
 
