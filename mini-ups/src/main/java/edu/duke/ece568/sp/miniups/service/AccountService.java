@@ -34,8 +34,9 @@ public class AccountService {
         return accountRepository.findById(id).map(
                 Account -> {
 //                    Account.setAccountID(rhsaccount.getAccountID());
-                    Account.setPassword(rhsaccount.getPassword());
                     Account.setAccountName(rhsaccount.getAccountName());
+                    Account.setPassword(rhsaccount.getPassword());
+                    Account.setEmail(rhsaccount.getEmail());
                     return accountRepository.save(Account);
                 }
         ).orElseThrow(() -> new NoSuchElementException("Cannot find this account"));

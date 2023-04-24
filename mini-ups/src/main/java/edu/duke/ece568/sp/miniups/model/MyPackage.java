@@ -1,5 +1,6 @@
 package edu.duke.ece568.sp.miniups.model;
 
+import edu.duke.ece568.sp.miniups.model.myenum.MyPackageStatus;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -19,11 +20,21 @@ public class MyPackage {
             strategy = GenerationType.SEQUENCE,
             generator = "package_sequence"
     )
-    @Column(name = "package_id")
+    @Column(name = "package_id") // tracking number
     private Long packageID;
 
     @Column(name = "description")
     private String description;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private MyPackageStatus status;
+
+    @Column(name = "origin_x", nullable = false)
+    private Integer originX;
+
+    @Column(name = "origin_y", nullable = false)
+    private Integer originY;
 
     //    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     // 如果order被删 package也被删
@@ -40,13 +51,21 @@ public class MyPackage {
     public MyPackage() {
     }
 
-    public MyPackage(String description, MyOrder myorder, Truck truck) {
+    public MyPackage(String description, MyPackageStatus status, Integer originX, Integer originY, MyOrder myorder, Truck truck) {
         this.description = description;
+        this.status = status;
+        this.originX = originX;
+        this.originY = originY;
         this.myorder = myorder;
         this.truck = truck;
     }
 
-    public MyPackage(MyOrder myorder, Truck truck) {
+    public MyPackage(Long packageID, String description, MyPackageStatus status, Integer originX, Integer originY, MyOrder myorder, Truck truck) {
+        this.packageID = packageID;
+        this.description = description;
+        this.status = status;
+        this.originX = originX;
+        this.originY = originY;
         this.myorder = myorder;
         this.truck = truck;
     }
@@ -88,5 +107,29 @@ public class MyPackage {
 
     public void setTruck(Truck truck) {
         this.truck = truck;
+    }
+
+    public MyPackageStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(MyPackageStatus status) {
+        this.status = status;
+    }
+
+    public Integer getOriginX() {
+        return originX;
+    }
+
+    public void setOriginX(Integer originX) {
+        this.originX = originX;
+    }
+
+    public Integer getOriginY() {
+        return originY;
+    }
+
+    public void setOriginY(Integer originY) {
+        this.originY = originY;
     }
 }

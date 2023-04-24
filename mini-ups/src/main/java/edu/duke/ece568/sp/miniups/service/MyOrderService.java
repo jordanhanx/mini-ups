@@ -44,20 +44,20 @@ public class MyOrderService {
 
     // 删
     public void createOrder() {
-        Account account = new Account("david","123456");
+        Account account = new Account("david","123456","david123@gmail.com","ADMIN");
         accountRepository.save(account);
-        MyOrder myorder = new MyOrder(11,22,account);
+        MyOrder myorder = new MyOrder(233L,11,22,account);
         myorderRepository.save(myorder);
-        Truck truck = new Truck(0,1, IDLE);
-        truckRepository.save(truck);
-        MyPackage mypackage = new MyPackage("shampoo",myorder,truck);
-        mypackageRepository.save(mypackage);
-        Warehouse warehouse = new Warehouse(5,7);
-        warehouseRepository.save(warehouse);
-
-        MyOrder myorder2 = new MyOrder(111,222,account);
+//        Truck truck = new Truck(0,1, IDLE);
+//        truckRepository.save(truck);
+//        MyPackage mypackage = new MyPackage("shampoo",myorder,truck);
+//        mypackageRepository.save(mypackage);
+//        Warehouse warehouse = new Warehouse(5,7);
+//        warehouseRepository.save(warehouse);
+//
+        MyOrder myorder2 = new MyOrder(233L,111,222,account);
         updateOrder(myorder.getOrderID(), myorder2);
-        deleteOrderById(1L);
+//        deleteOrderById(1L);
 
     }
 
@@ -68,7 +68,7 @@ public class MyOrderService {
     public MyOrder updateOrder(Long id, MyOrder rhsmyorder){
         return myorderRepository.findById(id).map(
                 myOrder -> {
-//                    myOrder.setOrderID(rhsmyorder.getOrderID());
+                    myOrder.setOrderID(rhsmyorder.getOrderID());
                     myOrder.setDestinationX(rhsmyorder.getDestinationX());
                     myOrder.setDestinationY(rhsmyorder.getDestinationY());
 //                    myOrder.setAccount(rhsmyorder.getAccount());

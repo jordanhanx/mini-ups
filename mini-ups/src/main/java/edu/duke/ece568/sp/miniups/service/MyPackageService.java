@@ -44,6 +44,9 @@ public class MyPackageService {
                     MyPackage.setDescription(rhsmypackage.getDescription());
 //                    MyPackage.setMyorder(rhsmypackage.getMyorder());
 //                    MyPackage.setTruck(rhsmypackage.getTruck());
+                    MyPackage.setStatus(rhsmypackage.getStatus());
+                    MyPackage.setOriginX(rhsmypackage.getOriginX());
+                    MyPackage.setOriginY(rhsmypackage.getOriginY());
                     return mypackageRepository.save(MyPackage);
                 }
         ).orElseThrow(() -> new NoSuchElementException("Cannot find this package"));

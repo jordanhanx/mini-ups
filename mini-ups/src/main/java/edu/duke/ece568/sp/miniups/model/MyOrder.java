@@ -10,16 +10,16 @@ import javax.persistence.*;
 public class MyOrder {
 
     @Id
-    @SequenceGenerator(
-            name = "order_sequence",
-            sequenceName = "order_sequence",
-            allocationSize = 1
-    )
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "order_sequence"
-    )
-    @Column(name = "order_id")
+//    @SequenceGenerator(
+//            name = "order_sequence",
+//            sequenceName = "order_sequence",
+//            allocationSize = 1
+//    )
+//    @GeneratedValue(
+//            strategy = GenerationType.SEQUENCE,
+//            generator = "order_sequence"
+//    )
+    @Column(name = "order_id", unique = true, nullable = false)
     private Long orderID;
     @Column(name = "destination_x", nullable = false)
     private Integer destinationX;
@@ -36,11 +36,11 @@ public class MyOrder {
     public MyOrder() {
     }
 
-    public MyOrder(Integer destinationX, Integer destinationY, Account account) {
-        this.destinationX = destinationX;
-        this.destinationY = destinationY;
-        this.account = account;
-    }
+//    public MyOrder(Integer destinationX, Integer destinationY, Account account) {
+//        this.destinationX = destinationX;
+//        this.destinationY = destinationY;
+//        this.account = account;
+//    }
 
     public MyOrder(Long orderID, Integer destinationX, Integer destinationY, Account account) {
         this.orderID = orderID;

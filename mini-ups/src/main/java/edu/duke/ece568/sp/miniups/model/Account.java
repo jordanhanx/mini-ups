@@ -1,7 +1,6 @@
 package edu.duke.ece568.sp.miniups.model;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
 @Table(name = "account")
@@ -24,21 +23,31 @@ public class Account {
     @Column(name = "password", nullable = false)
     private String password;
 
+    @Column(name = "email", nullable = false)
+    private String email;
+
+    @Column(name = "role", nullable = false)
+    private String role;
+
 //    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
 //    private List<MyOrder> orders;
     public Account() {
 
     }
 
-    public Account(String accountName, String password) {
+    public Account(String accountName, String password, String email, String role) {
         this.accountName = accountName;
         this.password = password;
+        this.email = email;
+        this.role = role;
     }
 
-    public Account(Long accountID, String accountName, String password) {
+    public Account(Long accountID, String accountName, String password, String email, String role) {
         this.accountID = accountID;
         this.accountName = accountName;
         this.password = password;
+        this.email = email;
+        this.role = role;
     }
 
     public Long getAccountID() {
@@ -63,5 +72,21 @@ public class Account {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }
