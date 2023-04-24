@@ -41,6 +41,7 @@ public class MyPackageService {
         return mypackageRepository.findById(id).map(
                 MyPackage -> {
 //                    MyPackage.setPackageID(rhsmypackage.getPackageID());
+//                    MyPackage.setPackagefromAmazonID(rhsmypackage.getPackagefromAmazonID());
                     MyPackage.setDescription(rhsmypackage.getDescription());
 //                    MyPackage.setMyorder(rhsmypackage.getMyorder());
 //                    MyPackage.setTruck(rhsmypackage.getTruck());
@@ -67,4 +68,6 @@ public class MyPackageService {
     public void deleteMyPackageById(Long id){
         mypackageRepository.deleteById(id);
     }
+
+    public List<MyPackage> findPackagesByOrderID(Long id) { return mypackageRepository.findByMyorderOrderID(id); }
 }

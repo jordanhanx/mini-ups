@@ -28,7 +28,8 @@ public class MyOrder {
     private Integer destinationY;
 
 //    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @ManyToOne(fetch = FetchType.LAZY)
+//    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "account_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Account account;

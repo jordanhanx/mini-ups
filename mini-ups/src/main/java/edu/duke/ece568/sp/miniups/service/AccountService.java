@@ -37,6 +37,7 @@ public class AccountService {
                     Account.setAccountName(rhsaccount.getAccountName());
                     Account.setPassword(rhsaccount.getPassword());
                     Account.setEmail(rhsaccount.getEmail());
+//                    Account.setRole(rhsaccount.getRole());
                     return accountRepository.save(Account);
                 }
         ).orElseThrow(() -> new NoSuchElementException("Cannot find this account"));

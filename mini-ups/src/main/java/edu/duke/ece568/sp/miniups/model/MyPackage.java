@@ -23,6 +23,9 @@ public class MyPackage {
     @Column(name = "package_id") // tracking number
     private Long packageID;
 
+    @Column(name = "package_id_from_amazon", unique = true, nullable = false)
+    private Integer packagefromAmazonID;
+
     @Column(name = "description")
     private String description;
 
@@ -38,12 +41,14 @@ public class MyPackage {
 
     //    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     // 如果order被删 package也被删
-    @ManyToOne(fetch = FetchType.LAZY)
+//    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private MyOrder myorder;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+//    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "truck_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE) // 待定
     private Truck truck;
@@ -51,7 +56,8 @@ public class MyPackage {
     public MyPackage() {
     }
 
-    public MyPackage(String description, MyPackageStatus status, Integer originX, Integer originY, MyOrder myorder, Truck truck) {
+    public MyPackage(Integer packagefromAmazonID, String description, MyPackageStatus status, Integer originX, Integer originY, MyOrder myorder, Truck truck) {
+        this.packagefromAmazonID = packagefromAmazonID;
         this.description = description;
         this.status = status;
         this.originX = originX;
@@ -60,19 +66,13 @@ public class MyPackage {
         this.truck = truck;
     }
 
-    public MyPackage(Long packageID, String description, MyPackageStatus status, Integer originX, Integer originY, MyOrder myorder, Truck truck) {
+    public MyPackage(Long packageID, Integer packagefromAmazonID, String description, MyPackageStatus status, Integer originX, Integer originY, MyOrder myorder, Truck truck) {
         this.packageID = packageID;
+        this.packagefromAmazonID = packagefromAmazonID;
         this.description = description;
         this.status = status;
         this.originX = originX;
         this.originY = originY;
-        this.myorder = myorder;
-        this.truck = truck;
-    }
-
-    public MyPackage(Long packageID, String description, MyOrder myorder, Truck truck) {
-        this.packageID = packageID;
-        this.description = description;
         this.myorder = myorder;
         this.truck = truck;
     }
@@ -131,5 +131,13 @@ public class MyPackage {
 
     public void setOriginY(Integer originY) {
         this.originY = originY;
+    }
+
+    public Integer getPackagefromAmazonID() {
+        return packagefromAmazonID;
+    }
+
+    public void setPackagefromAmazonID(Integer packagefromAmazonID) {
+        this.packagefromAmazonID = packagefromAmazonID;
     }
 }
