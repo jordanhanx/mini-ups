@@ -40,6 +40,12 @@ public class Truck {
         this.status = status;
     }
 
+    public Truck(Long truckID, Integer realX, Integer realY, TruckStatus status) {
+        this.truckID = truckID;
+        this.realX = realX;
+        this.realY = realY;
+        this.status = status;
+    }
 
     public Long getTruckID() {
         return truckID;
@@ -55,5 +61,21 @@ public class Truck {
 
     public TruckStatus getStatus() {
         return status;
+    }
+
+    public void setTruckID(Long truckID) {
+        this.truckID = truckID;
+    }
+
+    public void setRealX(Integer realX) {
+        this.realX = realX;
+    }
+
+    public void setRealY(Integer realY) {
+        this.realY = realY;
+    }
+
+    public void setStatus(TruckStatus status) {
+        this.status = status;
     }
 }

@@ -42,12 +42,12 @@ public class MyOrder {
         this.account = account;
     }
 
-//    public MyOrder(Long orderID, Integer destinationX, Integer destinationY, Account account) {
-//        this.orderID = orderID;
-//        this.destinationX = destinationX;
-//        this.destinationY = destinationY;
-//        this.account = account;
-//    }
+    public MyOrder(Long orderID, Integer destinationX, Integer destinationY, Account account) {
+        this.orderID = orderID;
+        this.destinationX = destinationX;
+        this.destinationY = destinationY;
+        this.account = account;
+    }
 
     public Long getOrderID() {
         return orderID;
@@ -63,5 +63,21 @@ public class MyOrder {
 
     public Account getAccount() {
         return account;
+    }
+
+    public void setOrderID(Long orderID) {
+        this.orderID = orderID;
+    }
+
+    public void setDestinationX(Integer destinationX) {
+        this.destinationX = destinationX;
+    }
+
+    public void setDestinationY(Integer destinationY) {
+        this.destinationY = destinationY;
+    }
+
+    public void setAccount(Account account) {
+        this.account = account;
     }
 }

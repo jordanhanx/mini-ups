@@ -7,6 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+
 import static edu.duke.ece568.sp.miniups.model.myenum.TruckStatus.IDLE;
 
 @Service
@@ -38,6 +42,7 @@ public class MyOrderService {
         this.warehouseRepository = warehouseRepository;
     }
 
+    // 删
     public void createOrder() {
         Account account = new Account("david","123456");
         accountRepository.save(account);
@@ -50,9 +55,43 @@ public class MyOrderService {
         Warehouse warehouse = new Warehouse(5,7);
         warehouseRepository.save(warehouse);
 
+        MyOrder myorder2 = new MyOrder(111,222,account);
+        updateOrder(myorder.getOrderID(), myorder2);
+        deleteOrderById(1L);
+
     }
 
-//    public List<Order> getOrders(){
-//        return List.of(new Order("David"));
-//    }
+    public void createOrder(MyOrder myorder){
+        myorderRepository.save(myorder);
+    }
+
+    public MyOrder updateOrder(Long id, MyOrder rhsmyorder){
+        return myorderRepository.findById(id).map(
+                myOrder -> {
+//                    myOrder.setOrderID(rhsmyorder.getOrderID());
+                    myOrder.setDestinationX(rhsmyorder.getDestinationX());
+                    myOrder.setDestinationY(rhsmyorder.getDestinationY());
+//                    myOrder.setAccount(rhsmyorder.getAccount());
+                    return myorderRepository.save(myOrder);
+                }
+        ).orElseThrow(() -> new NoSuchElementException("Cannot find this order"));
+    }
+
+    public List<MyOrder> getAllMyOrder(){
+        return myorderRepository.findAll();
+    }
+
+    public Optional<MyOrder> getOrderById(Long id){
+        return myorderRepository.findById(id);
+    }
+
+    public void deleteAllMyOrder(){
+        myorderRepository.deleteAll();
+    }
+
+    public void deleteOrderById(Long id){
+//        myorderRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Cannot find this order"));
+        myorderRepository.deleteById(id);
+
+    }
 }

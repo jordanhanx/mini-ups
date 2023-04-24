@@ -35,11 +35,11 @@ public class Account {
         this.password = password;
     }
 
-//    public Account(Long accountID, String accountName, String password) {
-//        this.accountID = accountID;
-//        this.accountName = accountName;
-//        this.password = password;
-//    }
+    public Account(Long accountID, String accountName, String password) {
+        this.accountID = accountID;
+        this.accountName = accountName;
+        this.password = password;
+    }
 
     public Long getAccountID() {
         return accountID;
@@ -51,5 +51,17 @@ public class Account {
 
     public String getPassword() {
         return password;
+    }
+
+    public void setAccountID(Long accountID) {
+        this.accountID = accountID;
+    }
+
+    public void setAccountName(String accountName) {
+        this.accountName = accountName;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

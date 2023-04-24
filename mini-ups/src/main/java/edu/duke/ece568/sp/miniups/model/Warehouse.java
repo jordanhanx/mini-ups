@@ -33,6 +33,12 @@ public class Warehouse {
         this.y = y;
     }
 
+    public Warehouse(Long warehouseID, Integer x, Integer y) {
+        this.warehouseID = warehouseID;
+        this.x = x;
+        this.y = y;
+    }
+
     public Long getWarehouseID() {
         return warehouseID;
     }
@@ -43,5 +49,17 @@ public class Warehouse {
 
     public Integer getY() {
         return y;
+    }
+
+    public void setWarehouseID(Long warehouseID) {
+        this.warehouseID = warehouseID;
+    }
+
+    public void setX(Integer x) {
+        this.x = x;
+    }
+
+    public void setY(Integer y) {
+        this.y = y;
     }
 }

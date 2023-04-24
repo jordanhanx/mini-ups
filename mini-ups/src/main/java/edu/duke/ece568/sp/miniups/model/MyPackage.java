@@ -51,6 +51,13 @@ public class MyPackage {
         this.truck = truck;
     }
 
+    public MyPackage(Long packageID, String description, MyOrder myorder, Truck truck) {
+        this.packageID = packageID;
+        this.description = description;
+        this.myorder = myorder;
+        this.truck = truck;
+    }
+
     public Long getPackageID() {
         return packageID;
     }
@@ -65,5 +72,21 @@ public class MyPackage {
 
     public Truck getTruck() {
         return truck;
+    }
+
+    public void setPackageID(Long packageID) {
+        this.packageID = packageID;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setMyorder(MyOrder myorder) {
+        this.myorder = myorder;
+    }
+
+    public void setTruck(Truck truck) {
+        this.truck = truck;
     }
 }
