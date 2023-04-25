@@ -34,13 +34,13 @@ public class MyPackage {
 
     // @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     // 如果order被删 package也被删
-//    @ManyToOne(fetch = FetchType.LAZY)
+    // @ManyToOne(fetch = FetchType.LAZY)
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private MyOrder myorder;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
+    // @ManyToOne(fetch = FetchType.LAZY)
     @ManyToOne
     @JoinColumn(name = "truck_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE) // 待定
@@ -49,13 +49,9 @@ public class MyPackage {
     public MyPackage() {
     }
 
-<<<<<<< HEAD:mini-ups/src/main/java/edu/duke/ece568/sp/miniups/model/MyPackage.java
-    public MyPackage(Integer packagefromAmazonID, String description, MyPackageStatus status, Integer originX, Integer originY, MyOrder myorder, Truck truck) {
+    public MyPackage(Integer packagefromAmazonID, String description, MyPackageStatus status, Integer originX,
+            Integer originY, MyOrder myorder, Truck truck) {
         this.packagefromAmazonID = packagefromAmazonID;
-=======
-    public MyPackage(String description, MyPackageStatus status, Integer originX, Integer originY, MyOrder myorder,
-            Truck truck) {
->>>>>>> origin/main:mini-ups/src/main/java/edu/duke/ece568/team24/miniups/model/MyPackage.java
         this.description = description;
         this.status = status;
         this.originX = originX;
@@ -64,12 +60,8 @@ public class MyPackage {
         this.truck = truck;
     }
 
-<<<<<<< HEAD:mini-ups/src/main/java/edu/duke/ece568/sp/miniups/model/MyPackage.java
-    public MyPackage(Long packageID, Integer packagefromAmazonID, String description, MyPackageStatus status, Integer originX, Integer originY, MyOrder myorder, Truck truck) {
-=======
-    public MyPackage(Long packageID, String description, MyPackageStatus status, Integer originX, Integer originY,
-            MyOrder myorder, Truck truck) {
->>>>>>> origin/main:mini-ups/src/main/java/edu/duke/ece568/team24/miniups/model/MyPackage.java
+    public MyPackage(Long packageID, Integer packagefromAmazonID, String description, MyPackageStatus status,
+            Integer originX, Integer originY, MyOrder myorder, Truck truck) {
         this.packageID = packageID;
         this.packagefromAmazonID = packagefromAmazonID;
         this.description = description;
