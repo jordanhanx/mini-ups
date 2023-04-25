@@ -20,54 +20,9 @@ public class MyOrderService {
 
     @Autowired
     private final MyOrderRepository myorderRepository;
-<<<<<<< HEAD:mini-ups/src/main/java/edu/duke/ece568/sp/miniups/service/MyOrderService.java
 
     MyOrderService(MyOrderRepository myorderRepository) {
         this.myorderRepository = myorderRepository;
-=======
-    // 删
-    @Autowired
-    private final AccountRepository accountRepository;
-    @Autowired
-    private final TruckRepository truckRepository;
-    @Autowired
-    private final MyPackageRepository mypackageRepository;
-    @Autowired
-    private final WarehouseRepository warehouseRepository;
-
-    // MyOrderService(MyOrderRepository myorderRepository) {
-    // this.myorderRepository = myorderRepository;
-    // }
-
-    // 删
-    MyOrderService(MyOrderRepository myorderRepository, AccountRepository accountRepository,
-            TruckRepository truckRepository, MyPackageRepository mypackageRepository,
-            WarehouseRepository warehouseRepository) {
-        this.myorderRepository = myorderRepository;
-        this.accountRepository = accountRepository;
-        this.truckRepository = truckRepository;
-        this.mypackageRepository = mypackageRepository;
-        this.warehouseRepository = warehouseRepository;
-    }
-
-    // 删
-    public void createOrder() {
-        Account account = new Account("david", "123456", "david123@gmail.com", "ADMIN");
-        accountRepository.save(account);
-        MyOrder myorder = new MyOrder(233L, 11, 22, account);
-        myorderRepository.save(myorder);
-        // Truck truck = new Truck(0,1, IDLE);
-        // truckRepository.save(truck);
-        // MyPackage mypackage = new MyPackage("shampoo",myorder,truck);
-        // mypackageRepository.save(mypackage);
-        // Warehouse warehouse = new Warehouse(5,7);
-        // warehouseRepository.save(warehouse);
-        //
-        MyOrder myorder2 = new MyOrder(233L, 111, 222, account);
-        updateOrder(myorder.getOrderID(), myorder2);
-        // deleteOrderById(1L);
-
->>>>>>> origin/main:mini-ups/src/main/java/edu/duke/ece568/team24/miniups/service/MyOrderService.java
     }
 
     public void createOrder(MyOrder myorder) {
@@ -104,7 +59,7 @@ public class MyOrderService {
 
     }
 
-    public List<MyOrder> findOrdersByAccount(Long accountID){
+    public List<MyOrder> findOrdersByAccount(Long accountID) {
         return myorderRepository.findByAccountAccountID(accountID);
     }
 }

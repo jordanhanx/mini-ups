@@ -1,4 +1,4 @@
-package edu.duke.ece568.team24.miniups.service;
+package edu.duke.ece568.team24.miniups.connection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

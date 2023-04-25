@@ -38,12 +38,8 @@ public class MyPackageService {
     public MyPackage updateMyPackage(Long id, MyPackage rhsmypackage) {
         return mypackageRepository.findById(id).map(
                 MyPackage -> {
-<<<<<<< HEAD:mini-ups/src/main/java/edu/duke/ece568/sp/miniups/service/MyPackageService.java
-//                    MyPackage.setPackageID(rhsmypackage.getPackageID());
-//                    MyPackage.setPackagefromAmazonID(rhsmypackage.getPackagefromAmazonID());
-=======
                     // MyPackage.setPackageID(rhsmypackage.getPackageID());
->>>>>>> origin/main:mini-ups/src/main/java/edu/duke/ece568/team24/miniups/service/MyPackageService.java
+                    // MyPackage.setPackagefromAmazonID(rhsmypackage.getPackagefromAmazonID());
                     MyPackage.setDescription(rhsmypackage.getDescription());
                     // MyPackage.setMyorder(rhsmypackage.getMyorder());
                     // MyPackage.setTruck(rhsmypackage.getTruck());
@@ -70,5 +66,7 @@ public class MyPackageService {
         mypackageRepository.deleteById(id);
     }
 
-    public List<MyPackage> findPackagesByOrderID(Long id) { return mypackageRepository.findByMyorderOrderID(id); }
+    public List<MyPackage> findPackagesByOrderID(Long id) {
+        return mypackageRepository.findByMyorderOrderID(id);
+    }
 }

@@ -18,8 +18,6 @@ import org.springframework.stereotype.Component;
 
 import edu.duke.ece568.team24.miniups.protobuf.amazonups.*;
 import edu.duke.ece568.team24.miniups.protobuf.worldups.*;
-import edu.duke.ece568.team24.miniups.service.ParseProtoService;
-import edu.duke.ece568.team24.miniups.service.SendProtoService;
 
 @Component
 public class ServerRunner implements CommandLineRunner {
@@ -62,67 +60,73 @@ public class ServerRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        connectToAmazon(amazonHost, amazonPort);
-        connectToWorld(worldHost, worldPort);
-        replyToAmazon();
+        // connectToAmazon(amazonHost, amazonPort);
+        // connectToWorld(worldHost, worldPort);
+        // replyToAmazon();
 
-        executor.execute(() -> {
-            while (true) {
-                try {
-                    AUCommands cmds = AUCommands.parseDelimitedFrom(fromAmazon);
-                    logger.debug(Thread.currentThread().getName() + "\nFrom Amazon:\n" + cmds.toString());
-                    parseProtoService.parseProtoFromAmazon(cmds);
-                } catch (Exception e) {
-                    Throwable throwable = e;
-                    while (throwable.getCause() != null) {
-                        throwable = throwable.getCause();
-                    }
-                    logger.error(Thread.currentThread().getName() + "\nAmazon: " + throwable.getMessage());
-                    reConnectAmazon(amazonHost, amazonPort);
-                }
-            }
-        });
+        // executor.execute(() -> {
+        // while (true) {
+        // try {
+        // AUCommands cmds = AUCommands.parseDelimitedFrom(fromAmazon);
+        // logger.debug(Thread.currentThread().getName() + "\nFrom Amazon:\n" +
+        // cmds.toString());
+        // parseProtoService.parseProtoFromAmazon(cmds);
+        // } catch (Exception e) {
+        // Throwable throwable = e;
+        // while (throwable.getCause() != null) {
+        // throwable = throwable.getCause();
+        // }
+        // logger.error(Thread.currentThread().getName() + "\nAmazon: " +
+        // throwable.getMessage());
+        // reConnectAmazon(amazonHost, amazonPort);
+        // }
+        // }
+        // });
 
-        executor.execute(() -> {
-            while (true) {
-                try {
-                    UResponses responses = UResponses.parseDelimitedFrom(fromWorld);
-                    logger.debug(Thread.currentThread().getName() + "\nFrom World:\n" + responses.toString());
-                    parseProtoService.parseProtoFromWorld(responses);
-                } catch (Exception e) {
-                    Throwable throwable = e;
-                    while (throwable.getCause() != null) {
-                        throwable = throwable.getCause();
-                    }
-                    logger.error(Thread.currentThread().getName() + "\nWorld: " + throwable.getMessage());
-                    reConnectWorld(worldHost, worldPort);
-                }
-            }
-        });
+        // executor.execute(() -> {
+        // while (true) {
+        // try {
+        // UResponses responses = UResponses.parseDelimitedFrom(fromWorld);
+        // logger.debug(Thread.currentThread().getName() + "\nFrom World:\n" +
+        // responses.toString());
+        // parseProtoService.parseProtoFromWorld(responses);
+        // } catch (Exception e) {
+        // Throwable throwable = e;
+        // while (throwable.getCause() != null) {
+        // throwable = throwable.getCause();
+        // }
+        // logger.error(Thread.currentThread().getName() + "\nWorld: " +
+        // throwable.getMessage());
+        // reConnectWorld(worldHost, worldPort);
+        // }
+        // }
+        // });
 
-        scheduler.scheduleAtFixedRate(() -> {
-            try {
-                sendProtoService.sendProtoToAmazon(toAmazon);
-            } catch (Exception e) {
-                Throwable throwable = e;
-                while (throwable.getCause() != null) {
-                    throwable = throwable.getCause();
-                }
-                logger.error(Thread.currentThread().getName() + "\nTo Amazon: " + throwable.getMessage());
-            }
-        }, Duration.ofSeconds(5));
+        // scheduler.scheduleAtFixedRate(() -> {
+        // try {
+        // sendProtoService.sendProtoToAmazon(toAmazon);
+        // } catch (Exception e) {
+        // Throwable throwable = e;
+        // while (throwable.getCause() != null) {
+        // throwable = throwable.getCause();
+        // }
+        // logger.error(Thread.currentThread().getName() + "\nTo Amazon: " +
+        // throwable.getMessage());
+        // }
+        // }, Duration.ofSeconds(5));
 
-        scheduler.scheduleAtFixedRate(() -> {
-            try {
-                sendProtoService.sendProtoToWorld(toWorld);
-            } catch (Exception e) {
-                Throwable throwable = e;
-                while (throwable.getCause() != null) {
-                    throwable = throwable.getCause();
-                }
-                logger.error(Thread.currentThread().getName() + "\nTo World" + throwable.getMessage());
-            }
-        }, Duration.ofSeconds(5));
+        // scheduler.scheduleAtFixedRate(() -> {
+        // try {
+        // sendProtoService.sendProtoToWorld(toWorld);
+        // } catch (Exception e) {
+        // Throwable throwable = e;
+        // while (throwable.getCause() != null) {
+        // throwable = throwable.getCause();
+        // }
+        // logger.error(Thread.currentThread().getName() + "\nTo World" +
+        // throwable.getMessage());
+        // }
+        // }, Duration.ofSeconds(5));
     }
 
     public void connectToAmazon(String amazonHost, int amazonPort)
