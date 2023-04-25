@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultreq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<main layout:fragment="main">
+    <div class="container mt-4">
+        <h1>Package Details</h1>
+        <hr>
+        <div class="row my-3">
+            <div class="col-md-6">
+                <strong>Tracking Number:</strong>
+                <span th:text="${package.packageID}"></span>
+            </div>
+            <div class="col-md-6">
+                <strong>Shipped From:</strong>
+                <span th:text="${'(' + package.originX + ',' + package.originY + ')'}"></span>
+            </div>
+        </div>
+        <div class="row my-3">
+            <div class="col-md-6">
+                <strong>Status:</strong>
+                <span th:text="${package.status}"></span>
+            </div>
+            <div class="col-md-6">
+                <strong>Shipped To:</strong>
+                <span th:text="${'(' + order.destinationX + ',' + order.destinationY + ')'}"></span>
+            </div>
+        </div>
+        <div class="row my-3">
+            <div class="col-md">
+                <strong>Package Description:</strong>
+                <p th:text="${package.description}"></p>
+            </div>
+        </div>
+    </div>
+</main>
+
+</html>
