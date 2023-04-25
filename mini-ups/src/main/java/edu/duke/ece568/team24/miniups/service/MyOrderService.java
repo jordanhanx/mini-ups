@@ -6,6 +6,7 @@ import edu.duke.ece568.team24.miniups.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -19,6 +20,11 @@ public class MyOrderService {
 
     @Autowired
     private final MyOrderRepository myorderRepository;
+<<<<<<< HEAD:mini-ups/src/main/java/edu/duke/ece568/sp/miniups/service/MyOrderService.java
+
+    MyOrderService(MyOrderRepository myorderRepository) {
+        this.myorderRepository = myorderRepository;
+=======
     // 删
     @Autowired
     private final AccountRepository accountRepository;
@@ -61,6 +67,7 @@ public class MyOrderService {
         updateOrder(myorder.getOrderID(), myorder2);
         // deleteOrderById(1L);
 
+>>>>>>> origin/main:mini-ups/src/main/java/edu/duke/ece568/team24/miniups/service/MyOrderService.java
     }
 
     public void createOrder(MyOrder myorder) {
@@ -95,5 +102,9 @@ public class MyOrderService {
         // NoSuchElementException("Cannot find this order"));
         myorderRepository.deleteById(id);
 
+    }
+
+    public List<MyOrder> findOrdersByAccount(Long accountID){
+        return myorderRepository.findByAccountAccountID(accountID);
     }
 }
