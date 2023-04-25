@@ -62,50 +62,50 @@ public class ServerRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        connectToAmazon(amazonHost, amazonPort);
-        connectToWorld(worldHost, worldPort);
+        // connectToAmazon(amazonHost, amazonPort);
+        // connectToWorld(worldHost, worldPort);
 
-        executor.execute(() -> {
-            while (true) {
-                try {
-                    AUCommands cmds = AUCommands.parseDelimitedFrom(fromAmazon);
-                    parseProtoService.parseProtoFromAmazon(cmds);
-                } catch (Exception e) {
-                    logger.error(Thread.currentThread().getName() + ": " + e.getMessage(), e);
-                    reConnectAmazon(amazonHost, amazonPort);
-                }
-            }
-        });
+        // executor.execute(() -> {
+        // while (true) {
+        // try {
+        // AUCommands cmds = AUCommands.parseDelimitedFrom(fromAmazon);
+        // parseProtoService.parseProtoFromAmazon(cmds);
+        // } catch (Exception e) {
+        // logger.error(Thread.currentThread().getName() + ": " + e.getMessage(), e);
+        // reConnectAmazon(amazonHost, amazonPort);
+        // }
+        // }
+        // });
 
-        executor.execute(() -> {
-            while (true) {
-                try {
-                    UResponses responses = UResponses.parseDelimitedFrom(fromWorld);
-                    parseProtoService.parseProtoFromWorld(responses);
-                } catch (Exception e) {
-                    logger.error(Thread.currentThread().getName() + ": " + e.getMessage(), e);
-                    reConnectWorld(worldHost, worldPort);
-                }
-            }
-        });
+        // executor.execute(() -> {
+        // while (true) {
+        // try {
+        // UResponses responses = UResponses.parseDelimitedFrom(fromWorld);
+        // parseProtoService.parseProtoFromWorld(responses);
+        // } catch (Exception e) {
+        // logger.error(Thread.currentThread().getName() + ": " + e.getMessage(), e);
+        // reConnectWorld(worldHost, worldPort);
+        // }
+        // }
+        // });
 
-        scheduler.scheduleAtFixedRate(() -> {
-            try {
-                sendProtoService.sendProtoToAmazon(toAmazon);
-            } catch (Exception e) {
-                logger.error(Thread.currentThread().getName() + ": " + e.getMessage(), e);
-                reConnectAmazon(amazonHost, amazonPort);
-            }
-        }, Duration.ofSeconds(1));
+        // scheduler.scheduleAtFixedRate(() -> {
+        // try {
+        // sendProtoService.sendProtoToAmazon(toAmazon);
+        // } catch (Exception e) {
+        // logger.error(Thread.currentThread().getName() + ": " + e.getMessage(), e);
+        // reConnectAmazon(amazonHost, amazonPort);
+        // }
+        // }, Duration.ofSeconds(1));
 
-        scheduler.scheduleAtFixedRate(() -> {
-            try {
-                sendProtoService.sendProtoToWorld(toWorld);
-            } catch (Exception e) {
-                logger.error(Thread.currentThread().getName() + ": " + e.getMessage(), e);
-                reConnectWorld(worldHost, worldPort);
-            }
-        }, Duration.ofSeconds(1));
+        // scheduler.scheduleAtFixedRate(() -> {
+        // try {
+        // sendProtoService.sendProtoToWorld(toWorld);
+        // } catch (Exception e) {
+        // logger.error(Thread.currentThread().getName() + ": " + e.getMessage(), e);
+        // reConnectWorld(worldHost, worldPort);
+        // }
+        // }, Duration.ofSeconds(1));
     }
 
     public void connectToAmazon(String amazonHost, int amazonPort)

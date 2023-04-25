@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultreq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<main layout:fragment="main">
+    <div class="container mt-4">
+        <h1>Orders</h1>
+        <hr>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col-4">Order ID</th>
+                    <th scope="col-4">Shipped To Address</th>
+                    <th scope="col-2"></th>
+                    <th scope="col-2"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>123456</td>
+                    <td>John Smith, 123 Main St, Anytown, USA</td>
+                    <td>
+                        <button type="button" class="btn btn-outline-success btn-sm" data-toggle="modal"
+                            data-target="#change-address-modal">Edit Address</button>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-outline-primary btn-sm accordion-toggle"
+                            data-toggle="collapse" data-target="#order1-packages">Show Packages</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4" class="hiddenRow">
+                        <div class="collapse" id="order1-packages">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Tracking Number</th>
+                                        <th>Status</th>
+                                        <th>Shipped From</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1Z1234567890123456</td>
+                                        <td>In Transit</td>
+                                        <td>John Smith, 123 Main St, Anytown, USA</td>
+                                        <td>
+                                            <button type="button" class="btn btn-primary btn-sm">Detail</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>1Z9876543210987654</td>
+                                        <td>Delivered</td>
+                                        <td>Jane Doe, 456 Maple Ave, Anytown, USA</td>
+                                        <td>
+                                            <button type="button" class="btn btn-primary btn-sm">Detail</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>789012</td>
+                    <td>Jane Doe, 456 Maple Ave, Anytown, USA</td>
+                    <td>
+                        <button type="button" class="btn btn-outline-success btn-sm" data-toggle="modal"
+                            data-target="#change-address-modal">Edit Address</button>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-outline-primary btn-sm accordion-toggle"
+                            data-toggle="collapse" data-target="#order2-packages">Show Packages</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4" class="hiddenRow">
+                        <div class="collapse" id="order2-packages">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Tracking Number</th>
+                                        <th>Status</th>
+                                        <th>Shipped From</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1Z24681012141618</td>
+                                        <td>Delivered</td>
+                                        <td>JohnDoe, 123 Main St, Anytown, USA</td>
+                                        <td>
+                                            <button type="button" class="btn btn-primary btn-sm">Detail</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>1Z13579111315172</td>
+                                        <td>In Transit</td>
+                                        <td>Jane Doe, 456 Maple Ave, Anytown, USA</td>
+                                        <td>
+                                            <button type="button" class="btn btn-primary btn-sm">Detail</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>1Z18243032424650</td>
+                                        <td>Out for Delivery</td>
+                                        <td>Jane Doe, 456 Maple Ave, Anytown, USA</td>
+                                        <td>
+                                            <button type="button" class="btn btn-primary btn-sm">Detail</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+    <!-- Change Address Modal -->
+    <div class="modal fade" id="change-address-modal" tabindex="-1" role="dialog"
+        aria-labelledby="change-address-modal-label" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form>
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="change-address-modal-label">Change Shipped To Address</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-row">
+                            <div class="col">
+                                <input type="text" class="form-control" placeholder="X coordinate">
+                            </div>
+                            <div class="col">
+                                <input type="text" class="form-control" placeholder="Y coordinate">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+
+</html>
