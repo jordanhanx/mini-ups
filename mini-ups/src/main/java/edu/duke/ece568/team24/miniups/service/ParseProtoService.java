@@ -46,97 +46,99 @@ public class ParseProtoService {
 
     public void parseProtoFromWorld(UResponses responses) {
         responses.getAcksList().stream()
-                .peek(ack -> {
+                .forEach(ack -> {
                     sendProtoService.removeMsgByACK(ack);
-                    logger.info(ack.toString());
+                    logger.debug(Thread.currentThread().getName() + "\nParsed:" + ack.toString());
                 });
         responses.getCompletionsList().stream()
                 .peek(c -> {
                     sendProtoService.postAckToWorld(c.getSeqnum());
-                    logger.info(c.toString());
+                    logger.debug(Thread.currentThread().getName() + "\nParsed:" + c.toString());
                 })
-                .filter(c -> !worldSeqNumCacheSet.contains(c.getSeqnum()) && c.getStatus().contains("arrive warehouse"))
-                .peek(c -> {
-                    sendProtoService.postUATruckArrived(c.getTruckid(), 1);
+                .filter(c -> !worldSeqNumCacheSet.contains(c.getSeqnum())
+                        && c.getStatus().equalsIgnoreCase("ARRIVE WAREHOUSE"))
+                .forEach(c -> {
+                    sendProtoService.postUATruckArrived(c.getTruckid(), 0);
+                    logger.debug(Thread.currentThread().getName() + "\nPostUATruckArrived:");
                     addToWorldSeqNumCacheSet(c.getSeqnum());
                 });
         responses.getDeliveredList().stream()
                 .peek(d -> {
                     sendProtoService.postAckToWorld(d.getSeqnum());
-                    logger.info(d.toString());
+                    logger.debug(Thread.currentThread().getName() + "\nParsed:" + d.toString());
                 })
                 .filter(d -> !worldSeqNumCacheSet.contains(d.getSeqnum()))
-                .peek(d -> {
+                .forEach(d -> {
                     sendProtoService.postUAOrderDelivered(d.getPackageid(), 0, 0);
                     addToWorldSeqNumCacheSet(d.getSeqnum());
                 });
         responses.getTruckstatusList().stream()
                 .peek(t -> {
                     sendProtoService.postAckToWorld(t.getSeqnum());
-                    logger.info(t.toString());
+                    logger.debug(Thread.currentThread().getName() + "\nParsed:" + t.toString());
                 })
                 .filter(d -> !worldSeqNumCacheSet.contains(d.getSeqnum()))
-                .peek(t -> {
+                .forEach(t -> {
                     addToWorldSeqNumCacheSet(t.getSeqnum());
                 });
         responses.getErrorList().stream()
                 .peek(err -> {
                     sendProtoService.postAckToWorld(err.getSeqnum());
-                    logger.error(err.toString());
+                    logger.debug(Thread.currentThread().getName() + "\nParsed:" + err.toString());
                 })
                 .filter(d -> !worldSeqNumCacheSet.contains(d.getSeqnum()))
-                .peek(err -> {
+                .forEach(err -> {
                     addToWorldSeqNumCacheSet(err.getSeqnum());
                 });
     }
 
     public void parseProtoFromAmazon(AUCommands cmds) {
         cmds.getAcksList().stream()
-                .peek(ack -> {
+                .forEach(ack -> {
                     sendProtoService.removeMsgByACK(ack);
-                    logger.info(ack.toString());
+                    logger.debug(Thread.currentThread().getName() + "\nParsed:" + ack.toString());
                 });
         cmds.getConnectedtoworldList().stream()
-                .peek(c -> {
+                .forEach(c -> {
                     sendProtoService.postAckToAmazon(c.getSeqnum());
-                    logger.error(c.toString());
+                    logger.debug(Thread.currentThread().getName() + "\nParsed:" + c.toString());
                 });
         cmds.getOrdercreatedList().stream()
                 .peek(o -> {
                     sendProtoService.postAckToAmazon(o.getSeqnum());
-                    logger.info(o.toString());
+                    logger.debug(Thread.currentThread().getName() + "\nParsed:" + o.toString());
                 })
                 .filter(o -> !amazonSeqNumCacheSet.contains(o.getSeqnum()))
-                .peek(o -> {
+                .forEach(o -> {
                     addToAmazonSeqNumCacheSet(o.getSeqnum());
                 });
         cmds.getRequesttruckList().stream()
                 .peek(r -> {
                     sendProtoService.postAckToAmazon(r.getSeqnum());
-                    logger.info(r.toString());
+                    logger.debug(Thread.currentThread().getName() + "\nParsed:" + r.toString());
                 })
                 .filter(r -> !amazonSeqNumCacheSet.contains(r.getSeqnum()))
-                .peek(r -> {
+                .forEach(r -> {
                     sendProtoService.postUGoPickup(1, r.getWhnum());
                     addToAmazonSeqNumCacheSet(r.getSeqnum());
                 });
         cmds.getOrderloadedList().stream()
                 .peek(ld -> {
                     sendProtoService.postAckToAmazon(ld.getSeqnum());
-                    logger.info(ld.toString());
+                    logger.debug(Thread.currentThread().getName() + "\nParsed:" + ld.toString());
                 })
                 .filter(ld -> !amazonSeqNumCacheSet.contains(ld.getSeqnum()))
-                .peek(ld -> {
+                .forEach(ld -> {
                     sendProtoService.postUGoUGoDeliver(ld.getTruckid(), ld.getPackageid(), 1, 1);
                     addToAmazonSeqNumCacheSet(ld.getSeqnum());
                 });
         cmds.getErrorList().stream()
                 .peek(err -> {
                     sendProtoService.postAckToAmazon(err.getSeqnum());
-                    logger.info(err.toString());
+                    logger.debug(Thread.currentThread().getName() + "\nParsed:" + err.toString());
                 })
                 .filter(err -> !amazonSeqNumCacheSet.contains(err.getSeqnum()))
-                .peek(err -> {
+                .forEach(err -> {
                     addToAmazonSeqNumCacheSet(err.getSeqnum());
                 });
     }
