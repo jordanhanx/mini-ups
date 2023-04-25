@@ -3,6 +3,7 @@ package edu.duke.ece568.team24.miniups.model;
 import edu.duke.ece568.team24.miniups.model.myenum.TruckStatus;
 
 import javax.persistence.*;
+
 import java.util.List;
 
 @Entity
