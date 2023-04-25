@@ -62,65 +62,90 @@ public class ServerRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // connectToAmazon(amazonHost, amazonPort);
-        // connectToWorld(worldHost, worldPort);
+        connectToAmazon(amazonHost, amazonPort);
+        connectToWorld(worldHost, worldPort);
+        replyToAmazon();
 
-        // executor.execute(() -> {
-        // while (true) {
-        // try {
-        // AUCommands cmds = AUCommands.parseDelimitedFrom(fromAmazon);
-        // parseProtoService.parseProtoFromAmazon(cmds);
-        // } catch (Exception e) {
-        // logger.error(Thread.currentThread().getName() + ": " + e.getMessage(), e);
-        // reConnectAmazon(amazonHost, amazonPort);
-        // }
-        // }
-        // });
+        executor.execute(() -> {
+            while (true) {
+                try {
+                    AUCommands cmds = AUCommands.parseDelimitedFrom(fromAmazon);
+                    logger.debug(Thread.currentThread().getName() + "\nFrom Amazon:\n" + cmds.toString());
+                    parseProtoService.parseProtoFromAmazon(cmds);
+                } catch (Exception e) {
+                    Throwable throwable = e;
+                    while (throwable.getCause() != null) {
+                        throwable = throwable.getCause();
+                    }
+                    logger.error(Thread.currentThread().getName() + "\nAmazon: " + throwable.getMessage());
+                    reConnectAmazon(amazonHost, amazonPort);
+                }
+            }
+        });
 
-        // executor.execute(() -> {
-        // while (true) {
-        // try {
-        // UResponses responses = UResponses.parseDelimitedFrom(fromWorld);
-        // parseProtoService.parseProtoFromWorld(responses);
-        // } catch (Exception e) {
-        // logger.error(Thread.currentThread().getName() + ": " + e.getMessage(), e);
-        // reConnectWorld(worldHost, worldPort);
-        // }
-        // }
-        // });
+        executor.execute(() -> {
+            while (true) {
+                try {
+                    UResponses responses = UResponses.parseDelimitedFrom(fromWorld);
+                    logger.debug(Thread.currentThread().getName() + "\nFrom World:\n" + responses.toString());
+                    parseProtoService.parseProtoFromWorld(responses);
+                } catch (Exception e) {
+                    Throwable throwable = e;
+                    while (throwable.getCause() != null) {
+                        throwable = throwable.getCause();
+                    }
+                    logger.error(Thread.currentThread().getName() + "\nWorld: " + throwable.getMessage());
+                    reConnectWorld(worldHost, worldPort);
+                }
+            }
+        });
 
-        // scheduler.scheduleAtFixedRate(() -> {
-        // try {
-        // sendProtoService.sendProtoToAmazon(toAmazon);
-        // } catch (Exception e) {
-        // logger.error(Thread.currentThread().getName() + ": " + e.getMessage(), e);
-        // reConnectAmazon(amazonHost, amazonPort);
-        // }
-        // }, Duration.ofSeconds(1));
+        scheduler.scheduleAtFixedRate(() -> {
+            try {
+                sendProtoService.sendProtoToAmazon(toAmazon);
+            } catch (Exception e) {
+                Throwable throwable = e;
+                while (throwable.getCause() != null) {
+                    throwable = throwable.getCause();
+                }
+                logger.error(Thread.currentThread().getName() + "\nTo Amazon: " + throwable.getMessage());
+            }
+        }, Duration.ofSeconds(5));
 
-        // scheduler.scheduleAtFixedRate(() -> {
-        // try {
-        // sendProtoService.sendProtoToWorld(toWorld);
-        // } catch (Exception e) {
-        // logger.error(Thread.currentThread().getName() + ": " + e.getMessage(), e);
-        // reConnectWorld(worldHost, worldPort);
-        // }
-        // }, Duration.ofSeconds(1));
+        scheduler.scheduleAtFixedRate(() -> {
+            try {
+                sendProtoService.sendProtoToWorld(toWorld);
+            } catch (Exception e) {
+                Throwable throwable = e;
+                while (throwable.getCause() != null) {
+                    throwable = throwable.getCause();
+                }
+                logger.error(Thread.currentThread().getName() + "\nTo World" + throwable.getMessage());
+            }
+        }, Duration.ofSeconds(5));
     }
 
     public void connectToAmazon(String amazonHost, int amazonPort)
             throws IOException {
         amazonSocket = new Socket(amazonHost, amazonPort);
+        logger.debug("\nConnected to Amazon at " + amazonSocket.toString());
         toAmazon = amazonSocket.getOutputStream();
         fromAmazon = amazonSocket.getInputStream();
         AUCommands cmds = AUCommands.parseDelimitedFrom(fromAmazon);
+        logger.debug("\nFrom Amazon:\n" + cmds.toString());
         AUConnectedToWorld conn = cmds.getConnectedtoworld(0);
         worldid = conn.getWorldid();
+        UACommands responseToAmazon = UACommands.newBuilder()
+                .addAcks(conn.getSeqnum())
+                .build();
+        responseToAmazon.writeDelimitedTo(toAmazon);
+        logger.debug("\nTo Amazon:\n" + responseToAmazon.toString());
     }
 
     public void connectToWorld(String worldHost, int worldPort)
             throws IOException {
         worldSocket = new Socket(worldHost, worldPort);
+        logger.debug("\nConnected to World at " + worldSocket.toString());
         toWorld = worldSocket.getOutputStream();
         fromWorld = worldSocket.getInputStream();
         UInitTruck truck1 = UInitTruck.newBuilder().setId(1).setX(0).setY(0).build();
@@ -132,14 +157,20 @@ public class ServerRunner implements CommandLineRunner {
                 .build()
                 .writeDelimitedTo(toWorld);
         UConnected uConnected = UConnected.parseDelimitedFrom(fromWorld);
-        if (uConnected.getResult().contains("connected")) {
-            UACommands.newBuilder().setConnectedtoworld(0,
-                    UAConnectedToWorld.newBuilder().setSeqnum(0).setWorldid(uConnected.getWorldid()))
-                    .build().writeDelimitedTo(toAmazon);
-        } else {
-            logger.error(uConnected.toString());
-            throw new IllegalStateException(uConnected.getResult());
+        logger.debug("\nFrom World:\n" + uConnected.toString());
+        if (!uConnected.getResult().contains("connected")) {
+            logger.error("\n" + uConnected.toString());
+            throw new IOException(uConnected.getResult());
         }
+    }
+
+    public void replyToAmazon() throws IOException {
+        UACommands responseToAmazon = UACommands.newBuilder()
+                .addConnectedtoworld(UAConnectedToWorld.newBuilder().setSeqnum(0).setWorldid(worldid))
+                .build();
+        responseToAmazon.writeDelimitedTo(toAmazon);
+        logger.debug("\nTo Amazon:\n"
+                + responseToAmazon.toString());
     }
 
     public void reConnectAmazon(String amazonHost, int amazonPort) {
@@ -147,8 +178,13 @@ public class ServerRunner implements CommandLineRunner {
             amazonSocket = new Socket(amazonHost, amazonPort);
             toAmazon = amazonSocket.getOutputStream();
             fromAmazon = amazonSocket.getInputStream();
+            logger.warn(Thread.currentThread().getName() + "\nReconnected to Amazon at " + amazonSocket.toString());
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            Throwable throwable = e;
+            while (throwable.getCause() != null) {
+                throwable = throwable.getCause();
+            }
+            logger.error(Thread.currentThread().getName() + "\nFailed to reconnect Amazon: " + throwable.getMessage());
         }
     }
 
@@ -160,11 +196,15 @@ public class ServerRunner implements CommandLineRunner {
             UConnect.newBuilder().setWorldid(worldid).setIsAmazon(false).build().writeDelimitedTo(toWorld);
             UConnected uConnected = UConnected.parseDelimitedFrom(fromWorld);
             if (!uConnected.getResult().contains("connected")) {
-                logger.error(uConnected.toString());
-                throw new IllegalStateException(uConnected.getResult());
+                throw new IOException(uConnected.getResult());
             }
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            logger.warn(Thread.currentThread().getName() + "\nReconnected to World at " + worldSocket.toString());
+        } catch (IOException e) {
+            Throwable throwable = e;
+            while (throwable.getCause() != null) {
+                throwable = throwable.getCause();
+            }
+            logger.error(Thread.currentThread().getName() + "\nFailed to reconnect World: " + throwable.getMessage());
         }
     }
 }
