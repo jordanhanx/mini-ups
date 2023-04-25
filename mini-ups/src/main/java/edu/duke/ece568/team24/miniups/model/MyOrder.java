@@ -27,8 +27,14 @@ public class MyOrder {
     @Column(name = "destination_y", nullable = false)
     private Integer destinationY;
 
+<<<<<<< HEAD:mini-ups/src/main/java/edu/duke/ece568/sp/miniups/model/MyOrder.java
+//    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+//    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
+=======
     // @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @ManyToOne(fetch = FetchType.LAZY)
+>>>>>>> origin/main:mini-ups/src/main/java/edu/duke/ece568/team24/miniups/model/MyOrder.java
     @JoinColumn(name = "account_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Account account;

@@ -61,4 +61,5 @@ public class TruckService {
         truckRepository.deleteById(id);
     }
 
+
 }
