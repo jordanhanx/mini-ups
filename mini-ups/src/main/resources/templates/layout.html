@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
         integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
-    <link rel="icon" href="@{/resources/static/ups-logo.svg}" type="image/svg+xml">
+    <link rel="icon" th:href="@{/resources/static/ups-logo.svg}" type="image/svg+xml">
     <title layout:title-pattern="$CONTENT_TITLE - $LAYOUT_TITLE">Mini-UPS</title>
 </head>
 
@@ -14,7 +14,7 @@
     <header>
         <!-- navbar begin -->
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" th:href="@{/}">
                 <svg width="56" height="66.644">
                     <path
                         d="M8.333 55.062C3.6 51.187 1.1 45.609 1.1 38.947V7.279c7.474-3.962 16.524-5.97 26.9-5.97s19.427 2.008 26.9 5.97v31.668c0 6.662-2.5 12.236-7.233 16.115-4.33 3.549-18.088 9.586-19.668 10.273-1.578-.687-15.336-6.723-19.666-10.273z"
@@ -31,7 +31,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Tracking</a>
+                        <a class="nav-link" th:href="@{/}">Tracking</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">Shipping</a>
@@ -44,7 +44,7 @@
                     </li>
                 </ul>
             </div>
-            <a class="navbar-brand" href="/profile">
+            <a class="navbar-brand" th:href="@{/profile}">
                 <div
                     style="background-color: #ffc400; border-radius: 50%; width: 50px; height: 50px; display: flex; justify-content: center; align-items: center;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"

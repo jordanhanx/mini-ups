@@ -10,9 +10,9 @@
             services to businesses and consumers worldwide.</p>
         <br>
         <h2>Track Your Shipment</h2>
-        <form>
-            <label for="tracking-number">Enter your tracking number:</label>
-            <input type="text" id="tracking-number" name="tracking-number">
+        <form method="get" th:action="@{/package/detail}">
+            <label for="trackingNumber">Enter your tracking number:</label>
+            <input type="text" id="trackingNumber" name="trackingNumber">
             <button type="submit" class="btn btn-primary">Track</button>
         </form>
         <br>

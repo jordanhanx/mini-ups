@@ -6,7 +6,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import edu.duke.ece568.team24.miniups.model.Account;
+import edu.duke.ece568.team24.miniups.model.MyOrder;
+import edu.duke.ece568.team24.miniups.model.MyPackage;
+import edu.duke.ece568.team24.miniups.model.myenum.MyPackageStatus;
 
 @Controller
 public class UpsController {
@@ -18,30 +23,32 @@ public class UpsController {
         return "index";
     }
 
-    @GetMapping("/signin")
-    public String getSignin(Model model) {
-        return "signin";
+    @GetMapping("/account/profile")
+    public String getProfile(Model model) {
+        Account acct = new Account(456L, "username", "password", "email@email.com", "USER");
+        model.addAttribute("user", acct);
+        return "account-profile";
     }
 
-    @GetMapping("/signup")
-    public String getSignup(Model model) {
-        return "signup";
+    @GetMapping("/package/detail")
+    public String getDetail(@RequestParam("trackingNumber") String trackNum, Model model) {
+        logger.debug("\nTrackingNumber = " + Long.parseLong(trackNum));
+        MyOrder odr = new MyOrder();
+        odr.setDestinationX(200);
+        odr.setDestinationY(200);
+        MyPackage pack = new MyPackage();
+        pack.setPackageID(Long.parseLong(trackNum));
+        pack.setDescription("Small Box");
+        pack.setStatus(MyPackageStatus.DELIVERING);
+        pack.setOriginX(10);
+        pack.setOriginY(10);
+        model.addAttribute("order", odr);
+        model.addAttribute("package", pack);
+        return "package-detail";
     }
 
-    @GetMapping("/account/{accountID}/profile")
-    public String getProfile(@PathVariable("accountID") long accountID, Model model) {
-        logger.debug("\nccountID = " + accountID);
-        return "profile";
-    }
-
-    @GetMapping("/package/{trackNum}/detail")
-    public String getDetail(@PathVariable("trackNum") long trackNum, Model model) {
-        logger.debug("\nTrackingNumber = " + trackNum);
-        return "detail";
-    }
-
-    @GetMapping("/account/{accountID}/orders")
+    @GetMapping("/account/order")
     public String getOrders(Model model) {
-        return "orders";
+        return "order-list";
     }
 }
