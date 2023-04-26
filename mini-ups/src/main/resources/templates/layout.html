@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
         integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
-    <link rel="icon" th:href="@{/resources/static/ups-logo.svg}" type="image/svg+xml">
+    <!-- <link rel="icon" th:href="@{~/ups-logo.png}" type="image/png" /> -->
     <title layout:title-pattern="$CONTENT_TITLE - $LAYOUT_TITLE">Mini-UPS</title>
 </head>
 
@@ -34,17 +34,17 @@
                         <a class="nav-link" th:href="@{/}">Tracking</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Shipping</a>
+                        <a class="nav-link" th:href="@{/}">Shipping</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Services</a>
+                        <a class="nav-link" th:href="@{/}">Services</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Support</a>
+                        <a class="nav-link" th:href="@{/}">Support</a>
                     </li>
                 </ul>
             </div>
-            <a class="navbar-brand" th:href="@{/profile}">
+            <a class="navbar-brand" th:href="@{/account/profile}">
                 <div
                     style="background-color: #ffc400; border-radius: 50%; width: 50px; height: 50px; display: flex; justify-content: center; align-items: center;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
@@ -56,6 +56,10 @@
         </nav>
         <!-- navbar end -->
     </header>
+
+    <!-- Alters -->
+    <div th:if="${param.success}" class="container alert alert-success" role="alert" th:text="${param.success}"></div>
+    <div th:if="${param.error}" class="container alert alert-danger" role="alert" th:text="${param.error}"></div>
 
     <main layout:fragment="main">
     </main>

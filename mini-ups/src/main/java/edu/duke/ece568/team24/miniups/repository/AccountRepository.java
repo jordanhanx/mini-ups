@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @Transactional
@@ -15,4 +16,9 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     // @Query("SELECT o FROM MyOrder WHERE o.accountID = :accountID;")
     // List<MyOrder> findOrdersByAccount(@Param("accountID") Long accountID);
+
+    Optional<Account> findByAccountName(String accountName);
+
+    Optional<Account> findByEmail(String email);
+
 }
