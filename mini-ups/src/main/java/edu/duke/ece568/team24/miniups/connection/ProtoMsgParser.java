@@ -66,7 +66,7 @@ public class ProtoMsgParser {
         acks.stream()
                 .forEach(ack -> {
                     sendProtoService.removeMsgByACK(ack);
-                    logger.debug("\nparseACKs(): " + ack.toString());
+                    logger.debug("\nparseACKs():\n" + ack.toString());
                 });
     }
 
@@ -74,14 +74,14 @@ public class ProtoMsgParser {
         completions.stream()
                 .peek(c -> {
                     sendProtoService.postAckToWorld(c.getSeqnum());
-                    logger.debug("\nparseCompletions(): " + c.toString());
+                    logger.debug("\nparseCompletions():\n" + c.toString());
                 })
                 .filter(c -> !worldSeqNumCacheSet.contains(c.getSeqnum())
                         && c.getStatus().equalsIgnoreCase("ARRIVE WAREHOUSE"))
                 .forEach(c -> {
                     sendProtoService.postUATruckArrived(c.getTruckid(), 0);
                     addToWorldSeqNumCacheSet(c.getSeqnum());
-                    logger.debug("\npostUATruckArrived");
+                    logger.debug("\npostUATruckArrived()");
                 });
     }
 
@@ -89,13 +89,13 @@ public class ProtoMsgParser {
         delivereds.stream()
                 .peek(d -> {
                     sendProtoService.postAckToWorld(d.getSeqnum());
-                    logger.debug("\nparseDelivereds(): " + d.toString());
+                    logger.debug("\nparseDelivereds():\n" + d.toString());
                 })
                 .filter(d -> !worldSeqNumCacheSet.contains(d.getSeqnum()))
                 .forEach(d -> {
                     sendProtoService.postUAOrderDelivered(d.getPackageid(), 0, 0);
                     addToWorldSeqNumCacheSet(d.getSeqnum());
-                    logger.debug("\npostUAOrderDelivered");
+                    logger.debug("\npostUAOrderDelivered()");
                 });
     }
 
@@ -103,7 +103,7 @@ public class ProtoMsgParser {
         truckstatuses.stream()
                 .peek(t -> {
                     sendProtoService.postAckToWorld(t.getSeqnum());
-                    logger.debug("\nparseTruckstatuses(): " + t.toString());
+                    logger.debug("\nparseTruckstatuses():\n" + t.toString());
                 })
                 .filter(t -> !worldSeqNumCacheSet.contains(t.getSeqnum()))
                 .forEach(t -> {
@@ -115,7 +115,7 @@ public class ProtoMsgParser {
         worldErrors.stream()
                 .peek(err -> {
                     sendProtoService.postAckToWorld(err.getSeqnum());
-                    logger.debug("\nparseWorldErrors(): " + err.toString());
+                    logger.warn("\nparseWorldErrors():\n" + err.toString());
                 })
                 .filter(err -> !worldSeqNumCacheSet.contains(err.getSeqnum()))
                 .forEach(err -> {
@@ -127,7 +127,7 @@ public class ProtoMsgParser {
         connectedtoworlds.stream()
                 .forEach(c -> {
                     sendProtoService.postAckToAmazon(c.getSeqnum());
-                    logger.debug("\nparseConnectedtoworlds(): " + c.toString());
+                    logger.debug("\nparseConnectedtoworlds():\n" + c.toString());
                 });
     }
 
@@ -135,7 +135,7 @@ public class ProtoMsgParser {
         orderCreateds.stream()
                 .peek(o -> {
                     sendProtoService.postAckToAmazon(o.getSeqnum());
-                    logger.debug("\nparseOrderCreateds(): " + o.toString());
+                    logger.debug("\nparseOrderCreateds():\n" + o.toString());
                 })
                 .filter(o -> !amazonSeqNumCacheSet.contains(o.getSeqnum()))
                 .forEach(o -> {
@@ -147,7 +147,7 @@ public class ProtoMsgParser {
         requestTrucks.stream()
                 .peek(r -> {
                     sendProtoService.postAckToAmazon(r.getSeqnum());
-                    logger.debug("\nparseRequestTrucks(): " + r.toString());
+                    logger.debug("\nparseRequestTrucks():\n" + r.toString());
                 })
                 .filter(r -> !amazonSeqNumCacheSet.contains(r.getSeqnum()))
                 .forEach(r -> {
@@ -161,7 +161,7 @@ public class ProtoMsgParser {
         orderLoadeds.stream()
                 .peek(ld -> {
                     sendProtoService.postAckToAmazon(ld.getSeqnum());
-                    logger.debug("\nparseOrderLoadeds(): " + ld.toString());
+                    logger.debug("\nparseOrderLoadeds():\n" + ld.toString());
                 })
                 .filter(ld -> !amazonSeqNumCacheSet.contains(ld.getSeqnum()))
                 .forEach(ld -> {
@@ -175,7 +175,7 @@ public class ProtoMsgParser {
         amazonErrors.stream()
                 .peek(err -> {
                     sendProtoService.postAckToAmazon(err.getSeqnum());
-                    logger.debug("\nparseAmazonErrors(): " + err.toString());
+                    logger.warn("\nparseAmazonErrors():\n" + err.toString());
                 })
                 .filter(err -> !amazonSeqNumCacheSet.contains(err.getSeqnum()))
                 .forEach(err -> {

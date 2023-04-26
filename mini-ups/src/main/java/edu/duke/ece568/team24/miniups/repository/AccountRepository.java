@@ -1,24 +1,12 @@
 package edu.duke.ece568.team24.miniups.repository;
 
-import edu.duke.ece568.team24.miniups.model.Account;
-import edu.duke.ece568.team24.miniups.model.MyOrder;
+import edu.duke.ece568.team24.miniups.model.AccountEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
+public interface AccountRepository extends JpaRepository<AccountEntity, Long> {
 
-import java.util.List;
-import java.util.Optional;
+    AccountEntity findByUsername(String username);
 
-@Repository
-@Transactional
-public interface AccountRepository extends JpaRepository<Account, Long> {
-
-    // @Query("SELECT o FROM MyOrder WHERE o.accountID = :accountID;")
-    // List<MyOrder> findOrdersByAccount(@Param("accountID") Long accountID);
-
-    Optional<Account> findByAccountName(String accountName);
-
-    Optional<Account> findByEmail(String email);
+    AccountEntity findByEmail(String email);
 
 }
