@@ -3,6 +3,7 @@
     layout:decorate="~{layout}">
 
 <main layout:fragment="main">
+    <div th:if="${param.loginsuccess}" class="container alert alert-success" role="alert">Welcome back.</div>
     <div class="container mt-5">
         <h1>Welcome to Mini UPS</h1>
         <p>We are a global logistics company that provides comprehensive package delivery, transportation, and

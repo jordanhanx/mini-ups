@@ -18,9 +18,9 @@ import edu.duke.ece568.team24.miniups.protobuf.amazonups.*;
 import edu.duke.ece568.team24.miniups.protobuf.worldups.*;
 
 @Service
-public class SendProtoService {
+public class ProtoMsgSender {
 
-    private static final Logger logger = LoggerFactory.getLogger(SendProtoService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProtoMsgSender.class);
 
     private AtomicLong seqNumCounter = new AtomicLong(0);
 

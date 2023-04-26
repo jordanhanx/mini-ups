@@ -37,7 +37,7 @@ public class AccountService {
                     Account.setAccountName(rhsaccount.getAccountName());
                     Account.setPassword(rhsaccount.getPassword());
                     Account.setEmail(rhsaccount.getEmail());
-//                    Account.setRole(rhsaccount.getRole());
+                    // Account.setRole(rhsaccount.getRole());
                     return accountRepository.save(Account);
                 }).orElseThrow(() -> new NoSuchElementException("Cannot find this account"));
     }
@@ -58,4 +58,11 @@ public class AccountService {
         accountRepository.deleteById(id);
     }
 
+    public Optional<Account> findByAccountName(String accountName) {
+        return accountRepository.findByAccountName(accountName);
+    }
+
+    public Optional<Account> findByEmail(String email) {
+        return accountRepository.findByEmail(email);
+    }
 }
