@@ -12,54 +12,53 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-@Service
-@Transactional
-public class TruckService {
+// @Service
+// @Transactional
+// public class TruckService {
 
-    @Autowired
-    private final TruckRepository truckRepository;
+// @Autowired
+// private final TruckRepository truckRepository;
 
-    public TruckService(TruckRepository truckRepository) {
-        this.truckRepository = truckRepository;
-    }
+// public TruckService(TruckRepository truckRepository) {
+// this.truckRepository = truckRepository;
+// }
 
-    public void createTruck(Truck truck) {
-        // Account account = new Account("david","123456");
-        // accountRepository.save(account);
-        // MyOrder myorder = new MyOrder(11,22,account);
-        // myorderRepository.save(myorder);
-        // Truck truck = new Truck(0,1, IDLE);
-        // truckRepository.save(truck);
-        truckRepository.save(truck);
+// public void createTruck(Truck truck) {
+// // Account account = new Account("david","123456");
+// // accountRepository.save(account);
+// // MyOrder myorder = new MyOrder(11,22,account);
+// // myorderRepository.save(myorder);
+// // Truck truck = new Truck(0,1, IDLE);
+// // truckRepository.save(truck);
+// truckRepository.save(truck);
 
-    }
+// }
 
-    public Truck updateTruck(Long id, Truck rhstruck) {
-        return truckRepository.findById(id).map(
-                Truck -> {
-                    // Truck.setTruckID(rhstruck.getTruckID());
-                    Truck.setRealX(rhstruck.getRealX());
-                    Truck.setRealY(rhstruck.getRealY());
-                    Truck.setStatus(rhstruck.getStatus());
-                    return truckRepository.save(Truck);
-                }).orElseThrow(() -> new NoSuchElementException("Cannot find this truck"));
-    }
+// public Truck updateTruck(Long id, Truck rhstruck) {
+// return truckRepository.findById(id).map(
+// Truck -> {
+// // Truck.setTruckID(rhstruck.getTruckID());
+// Truck.setRealX(rhstruck.getRealX());
+// Truck.setRealY(rhstruck.getRealY());
+// Truck.setStatus(rhstruck.getStatus());
+// return truckRepository.save(Truck);
+// }).orElseThrow(() -> new NoSuchElementException("Cannot find this truck"));
+// }
 
-    public List<Truck> getAllMyTruck() {
-        return truckRepository.findAll();
-    }
+// public List<Truck> getAllMyTruck() {
+// return truckRepository.findAll();
+// }
 
-    public Optional<Truck> getTruckById(Long id) {
-        return truckRepository.findById(id);
-    }
+// public Optional<Truck> getTruckById(Long id) {
+// return truckRepository.findById(id);
+// }
 
-    public void deleteAllTruck() {
-        truckRepository.deleteAll();
-    }
+// public void deleteAllTruck() {
+// truckRepository.deleteAll();
+// }
 
-    public void deleteTruckById(Long id) {
-        truckRepository.deleteById(id);
-    }
+// public void deleteTruckById(Long id) {
+// truckRepository.deleteById(id);
+// }
 
-
-}
+// }

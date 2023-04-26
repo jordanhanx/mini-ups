@@ -8,7 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import edu.duke.ece568.team24.miniups.model.Account;
+import edu.duke.ece568.team24.miniups.model.AccountEntity;
 import edu.duke.ece568.team24.miniups.model.MyOrder;
 import edu.duke.ece568.team24.miniups.model.MyPackage;
 import edu.duke.ece568.team24.miniups.model.myenum.MyPackageStatus;

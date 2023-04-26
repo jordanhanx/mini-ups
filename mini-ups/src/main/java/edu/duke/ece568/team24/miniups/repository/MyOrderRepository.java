@@ -7,10 +7,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Repository
-@Transactional
-public interface MyOrderRepository extends JpaRepository<MyOrder, Long> {
+// @Repository
+// @Transactional
+// public interface MyOrderRepository extends JpaRepository<MyOrder, Long> {
 
-    List<MyOrder> findByAccountAccountID(Long accountID);
+// List<MyOrder> findByAccountAccountID(Long accountID);
 
-}
+// }

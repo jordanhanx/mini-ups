@@ -57,7 +57,7 @@ public class ProtoMsgSender {
         } else if (errMap.containsKey(ack)) {
             errMap.containsKey(ack);
         } else {
-            logger.warn(Thread.currentThread().getName() + "\n Not found Msg by ACK = " + ack);
+            logger.warn("\nNot found Msg by ACK(" + ack + ")");
         }
     }
 
@@ -154,8 +154,7 @@ public class ProtoMsgSender {
         if (!isEmpty) {
             UCommands msgToWorld = cmdsBldr.build();
             msgToWorld.writeDelimitedTo(toWorld);
-            logger.debug(
-                    Thread.currentThread().getName() + "\nTo World:\n" + msgToWorld.toString());
+            logger.debug("\nTo World:\n" + msgToWorld.toString());
             ackToWorld.clear();
         }
     }
@@ -194,8 +193,7 @@ public class ProtoMsgSender {
         if (!isEmpty) {
             UACommands msgToAmazon = cmdsBldr.build();
             msgToAmazon.writeDelimitedTo(toAmazon);
-            logger.debug(
-                    Thread.currentThread().getName() + "\nTo Amazon:\n" + msgToAmazon.toString());
+            logger.debug("\nTo Amazon:\n" + msgToAmazon.toString());
             ackToAmazon.clear();
         }
     }
