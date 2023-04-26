@@ -3,9 +3,6 @@
     layout:decorate="~{layout}">
 
 <main layout:fragment="main">
-    <div th:if="${param.signupsuccess}" class="container alert alert-success" role="alert">Sign up successfully.</div>
-    <div th:if="${param.loginfail}" class="container alert alert-danger" role="alert">Invalid username or password.
-    </div>
     <div th:if="${param.logoutsuccess}" class="container alert alert-primary" role="alert">You've logout.</div>
     <div class="container mt-5 mb-3 text-center">
         <div class="row">

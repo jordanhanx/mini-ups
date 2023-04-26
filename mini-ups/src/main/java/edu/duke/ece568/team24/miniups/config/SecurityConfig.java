@@ -32,12 +32,12 @@ public class SecurityConfig {
                 .and()
                 .formLogin()
                 .loginPage("/account/login")
-                .defaultSuccessUrl("/?loginsuccess=true")
-                .failureUrl("/account/login?loginfail=true")
+                .defaultSuccessUrl("/?success=Welcome back.")
+                .failureUrl("/account/login?error=Invalid username or password.")
                 .and()
                 .logout()
                 .logoutUrl("/account/logout")
-                .logoutSuccessUrl("/account/login?logoutsuccess=true");
+                .logoutSuccessUrl("/account/login?success=You've logout.");
 
         return http.build();
     }
