@@ -1,6 +1,117 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultreq.net.nz/thymeleaf/layout"-->
+<!--    layout:decorate="~{layout}">-->
+
+<!--<main layout:fragment="main">-->
+<!--    <div class="container mt-4">-->
+<!--        <h1>Orders</h1>-->
+<!--        <hr>-->
+<!--        <table class="table">-->
+<!--            <thead>-->
+<!--                <tr>-->
+<!--                    <th scope="col-4">Order ID</th>-->
+<!--                    <th scope="col-4">Shipped To Address</th>-->
+<!--                    <th scope="col-2"></th>-->
+<!--                    <th scope="col-2"></th>-->
+<!--                </tr>-->
+<!--            </thead>-->
+<!--            <tbody>-->
+<!--                <tr th:each="order, iterStat : ${orders}">-->
+<!--                    <td th:text="${order.orderID}"></td>-->
+<!--                    <td th:text="${'(' + order.destinationX + ',' + order.destinationY + ')'}"></td>-->
+<!--                    <td>-->
+<!--                        <button type="button" class="btn btn-outline-success btn-sm change-address-btn"-->
+<!--                            data-toggle="modal" data-target="#change-address-modal" th:data-order-id="${order.id}">Edit-->
+<!--                            Address</button>-->
+<!--                    </td>-->
+<!--                    <td>-->
+<!--                        <button type="button" class="btn btn-outline-primary btn-sm accordion-toggle"-->
+<!--                            data-toggle="collapse" th:attr="data-target='#order'+${iterStat.index}+'-packages'">Show-->
+<!--                            Packages</button>-->
+<!--                    </td>-->
+<!--                </tr>-->
+<!--                <tr th:each="order : ${orders}">-->
+<!--                    <td colspan="4" class="hiddenRow">-->
+<!--                        <div class="collapse" th:id="'order'+${order.id}+'-packages'">-->
+<!--                            <table class="table table-hover">-->
+<!--                                <thead>-->
+<!--                                    <tr>-->
+<!--                                        <th>Tracking Number</th>-->
+<!--                                        <th>Status</th>-->
+<!--                                        <th>Shipped From</th>-->
+<!--                                        <th></th>-->
+<!--                                    </tr>-->
+<!--                                </thead>-->
+<!--                                <tbody>-->
+<!--                                    <tr th:each="package : ${order.packages}">-->
+<!--                                        <td th:text="${package.packageID}"></td>-->
+<!--                                        <td th:text="${package.status}"></td>-->
+<!--                                        <td th:text="${'(' + package.originX + ',' + package.originY + ')'}"></td>-->
+<!--                                        <td>-->
+<!--                                            <form method="get" th:action="@{/package/detail}" class="detail-form">-->
+<!--                                                <input type="hidden" th:name="packageID"-->
+<!--                                                    th:value="${package.packageID}" />-->
+<!--                                                <button type="submit" class="btn btn-primary btn-sm">Detail</button>-->
+<!--                                            </form>-->
+<!--                                        </td>-->
+<!--                                    </tr>-->
+<!--                                </tbody>-->
+<!--                            </table>-->
+<!--                        </div>-->
+<!--                    </td>-->
+<!--                </tr>-->
+<!--            </tbody>-->
+<!--        </table>-->
+<!--    </div>-->
+<!--    &lt;!&ndash; Change Address Modal &ndash;&gt;-->
+<!--    <div class="modal fade" id="change-address-modal" tabindex="-1" role="dialog"-->
+<!--        aria-labelledby="change-address-modal-label" aria-hidden="true">-->
+<!--        <div class="modal-dialog" role="document">-->
+<!--            <div class="modal-content">-->
+<!--                <form id="change-address-form">-->
+<!--                    <input type="hidden" name="orderID" id="modal-order-id" value="" />-->
+<!--                    <div class="modal-header">-->
+<!--                        <h5 class="modal-title" id="change-address-modal-label">Change Shipped To Address</h5>-->
+<!--                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">-->
+<!--                            <span aria-hidden="true">&times;</span>-->
+<!--                        </button>-->
+<!--                    </div>-->
+<!--                    <div class="modal-body">-->
+<!--                        <div class="form-row">-->
+<!--                            <div class="col">-->
+<!--                                <input type="text" class="form-control" placeholder="X coordinate">-->
+<!--                            </div>-->
+<!--                            <div class="col">-->
+<!--                                <input type="text" class="form-control" placeholder="Y coordinate">-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="modal-footer">-->
+<!--                        <button type="submit" class="btn btn-primary">Save Changes</button>-->
+<!--                    </div>-->
+<!--                </form>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--    &lt;!&ndash; Use JavaScript to update the modal form with the correct orderID when the "edit address" button is clicked &ndash;&gt;-->
+<!--    <script>-->
+<!--        document.addEventListener('DOMContentLoaded', function () {-->
+<!--            const changeAddressButtons = document.querySelectorAll('.change-address-btn');-->
+<!--            changeAddressButtons.forEach((button) => {-->
+<!--                button.addEventListener('click', function () {-->
+<!--                    const orderID = button.getAttribute('data-order-id');-->
+<!--                    const modalOrderIDInput = document.getElementById('modal-order-id');-->
+<!--                    modalOrderIDInput.value = orderID;-->
+<!--                });-->
+<!--            });-->
+<!--        });-->
+<!--    </script>-->
+<!--</main>-->
+
+<!--</html>-->
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultreq.net.nz/thymeleaf/layout"
-    layout:decorate="~{layout}">
+      layout:decorate="~{layout}">
 
 <main layout:fragment="main">
     <div class="container mt-4">
@@ -8,64 +119,67 @@
         <hr>
         <table class="table">
             <thead>
-                <tr>
-                    <th scope="col-4">Order ID</th>
-                    <th scope="col-4">Shipped To Address</th>
-                    <th scope="col-2"></th>
-                    <th scope="col-2"></th>
-                </tr>
+            <tr>
+                <th scope="col-4">Order ID</th>
+                <th scope="col-4">Shipped To Address</th>
+                <th scope="col-2"></th>
+                <th scope="col-2"></th>
+            </tr>
             </thead>
             <tbody>
-                <tr th:each="order, iterStat : ${orders}">
-                    <td th:text="${order.orderID}"></td>
-                    <td th:text="${'(' + order.destinationX + ',' + order.destinationY + ')'}"></td>
-                    <td>
-                        <button type="button" class="btn btn-outline-success btn-sm change-address-btn"
-                            data-toggle="modal" data-target="#change-address-modal" th:data-order-id="${order.id}">Edit
-                            Address</button>
-                    </td>
-                    <td>
-                        <button type="button" class="btn btn-outline-primary btn-sm accordion-toggle"
-                            data-toggle="collapse" th:attr="data-target='#order'+${iterStat.index}+'-packages'">Show
-                            Packages</button>
-                    </td>
-                </tr>
-                <tr th:each="order : ${orders}">
-                    <td colspan="4" class="hiddenRow">
-                        <div class="collapse" th:id="'order'+${order.id}+'-packages'">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Tracking Number</th>
-                                        <th>Status</th>
-                                        <th>Shipped From</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr th:each="package : ${order.packages}">
-                                        <td th:text="${package.packageID}"></td>
-                                        <td th:text="${package.status}"></td>
-                                        <td th:text="${'(' + package.originX + ',' + package.originY + ')'}"></td>
-                                        <td>
-                                            <form method="get" th:action="@{/package/detail}" class="detail-form">
-                                                <input type="hidden" th:name="packageID"
-                                                    th:value="${package.packageID}" />
-                                                <button type="submit" class="btn btn-primary btn-sm">Detail</button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </td>
-                </tr>
+            <tr th:each="order, iterStat : ${orders}">
+                <td th:text="${order.orderID}"></td>
+                <td th:text="${'(' + order.destinationX + ',' + order.destinationY + ')'}"></td>
+                <td>
+                    <button type="button" class="btn btn-outline-success btn-sm change-address-btn"
+                            data-toggle="modal" data-target="#change-address-modal" th:data-order-id="${order.orderID}">Edit
+                        Address</button>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-outline-primary btn-sm accordion-toggle"
+                            data-toggle="collapse" th:attr="data-target='#order'+${order.orderID}+'-packages'">Show
+<!--                            data-toggle="collapse" th:attr="data-target='#order'+${iterStat.index}+'-packages'">Show-->
+                        Packages</button>
+                </td>
+            </tr>
+            <tr th:each="order : ${orders}">
+                <td colspan="4" class="hiddenRow">
+                    <div class="collapse" th:id="'order'+${order.orderID}+'-packages'">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>Tracking Number</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                                <th>Shipped From</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="package : ${order.packages}">
+                                <td th:text="${package.packageID}"></td>
+                                <td th:text="${package.description}"></td>
+                                <td th:text="${package.status}"></td>
+                                <td th:text="${'(' + package.originX + ',' + package.originY + ')'}"></td>
+                                <td>
+                                    <form method="get" th:action="@{/package/detail}" class="detail-form">
+                                        <input type="hidden" th:name="packageID"
+                                               th:value="${package.packageID}" />
+                                        <button type="submit" class="btn btn-primary btn-sm">Detail</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </td>
+            </tr>
             </tbody>
         </table>
     </div>
     <!-- Change Address Modal -->
     <div class="modal fade" id="change-address-modal" tabindex="-1" role="dialog"
-        aria-labelledby="change-address-modal-label" aria-hidden="true">
+         aria-labelledby="change-address-modal-label" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <form id="change-address-form">
