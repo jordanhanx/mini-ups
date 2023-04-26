@@ -11,8 +11,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import edu.duke.ece568.team24.miniups.model.Account;
 import edu.duke.ece568.team24.miniups.service.AccountService;
@@ -45,7 +43,7 @@ public class AuthController {
             result.rejectValue("email", null, "Email exists");
         }
         if (!newUser.getPassword().equals(newUser.getConfirmPassword())) {
-            result.rejectValue("confirmPassword", null, "Passwords do not match");
+            result.rejectValue("confirmPassword", null, "Confirm password doesn't match");
         }
         if (result.hasErrors()) {
             model.addAttribute("newUser", newUser);
@@ -55,7 +53,7 @@ public class AuthController {
                 .createAccount(new Account(newUser.getUsername(),
                         passwordEncoder.encode(newUser.getPassword()),
                         newUser.getEmail(), "USER"));
-        return "redirect:/account/login?signupsuccess=true";
+        return "redirect:/account/login?success=Sign up successfully.";
     }
 
     @GetMapping("/account/login")

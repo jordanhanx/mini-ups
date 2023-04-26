@@ -57,6 +57,10 @@
         <!-- navbar end -->
     </header>
 
+    <!-- Alters -->
+    <div th:if="${param.success}" class="container alert alert-success" role="alert" th:text="${param.success}"></div>
+    <div th:if="${param.error}" class="container alert alert-danger" role="alert" th:text="${param.error}"></div>
+
     <main layout:fragment="main">
     </main>
 
