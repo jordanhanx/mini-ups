@@ -3,7 +3,7 @@ package edu.duke.ece568.team24.miniups.security;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 
-public class SignupDto {
+public class SignupForm {
     @NotEmpty(message = "Username should not be empty")
     private String username;
     @Email(message = "Email format invalid")
@@ -13,10 +13,10 @@ public class SignupDto {
     @NotEmpty(message = "Confirm password should not be empty")
     private String confirmPassword;
 
-    public SignupDto() {
+    public SignupForm() {
     }
 
-    public SignupDto(String username, String email, String password, String confirmPassword) {
+    public SignupForm(String username, String email, String password, String confirmPassword) {
         this.username = username;
         this.email = email;
         this.password = password;
