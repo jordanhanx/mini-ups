@@ -23,12 +23,13 @@ public class UpsController {
         return "index";
     }
 
-    @GetMapping("/account/profile")
-    public String getProfile(Model model) {
-        Account acct = new Account(456L, "username", "password", "email@email.com", "USER");
-        model.addAttribute("user", acct);
-        return "account-profile";
-    }
+    // @GetMapping("/account/profile")
+    // public String getProfile(Model model) {
+    // Account acct = new Account(456L, "username", "password", "email@email.com",
+    // "USER");
+    // model.addAttribute("user", acct);
+    // return "account-profile";
+    // }
 
     @GetMapping("/package/detail")
     public String getDetail(@RequestParam("trackingNumber") String trackNum, Model model) {
