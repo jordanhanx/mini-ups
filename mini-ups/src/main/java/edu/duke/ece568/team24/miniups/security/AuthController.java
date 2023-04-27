@@ -12,18 +12,30 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import edu.duke.ece568.team24.miniups.model.Account;
-import edu.duke.ece568.team24.miniups.service.AccountService;
+import edu.duke.ece568.team24.miniups.model.*;
+import edu.duke.ece568.team24.miniups.service.*;
+
+import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Arrays;
+
+import javax.servlet.http.HttpServletRequest;
+import static edu.duke.ece568.team24.miniups.model.myenum.MyPackageStatus.DELIVERING;
 
 @Controller
 public class AuthController {
 
     private AccountService accountService;
+    private MyOrderService myorderService;
+    private MyPackageService myPackageService;
 
     private PasswordEncoder passwordEncoder;
 
-    public AuthController(AccountService accountService, PasswordEncoder passwordEncoder) {
+    public AuthController(AccountService accountService, MyOrderService myorderService, MyPackageService myPackageService, PasswordEncoder passwordEncoder) {
         this.accountService = accountService;
+        this.myorderService = myorderService;
+        this.myPackageService = myPackageService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -100,5 +112,81 @@ public class AuthController {
             accountService.updateAccount(userAccount.getAccountID(), userAccount);
             return "redirect:/account/profile?success=Password updated successfully.";
         }
+    }
+
+    @GetMapping("/account/order")
+    public String getOrders(@AuthenticationPrincipal UserDetails user, Model model) {
+
+        // 输入accountid即可查询
+
+        Optional<Account> checkuserAccount = accountService.findByAccountName(user.getUsername());
+        Account userAccount;
+        if(checkuserAccount.isPresent()){
+            userAccount = checkuserAccount.get();
+        }else{
+            return "index";
+        }
+
+        Long userID = userAccount.getAccountID();
+
+        List<MyOrder> realorders = myorderService.findOrdersByAccount(userID);
+        List<CombineMyOrder> orders = new ArrayList<>();
+        for(int i = 0;i<realorders.size();i++){
+            CombineMyOrder order = new CombineMyOrder();
+            order.setOrderID(realorders.get(i).getOrderID());
+            order.setDestinationX(realorders.get(i).getDestinationX());
+            order.setDestinationY(realorders.get(i).getDestinationY());
+
+            List<MyPackage> realpackages = myPackageService.findPackagesByOrderID(realorders.get(i).getOrderID());
+            order.setPackages(realpackages);
+            orders.add(order);
+        }
+
+        model.addAttribute("orders",orders);
+        model.addAttribute("destinationForm", new DestinationForm());
+
+        return "order-list";
+    }
+
+    @PostMapping("/account/order/destinationupdate")
+    public String postOrderDestinationUpdate(@AuthenticationPrincipal UserDetails user,
+                                                @Valid @ModelAttribute("destinationForm") DestinationForm destinationForm,
+                                                BindingResult result, Model model, HttpServletRequest request) {
+        if (result.hasErrors()) {
+            return "redirect:/account/order?error=Invalid input for destination.";
+        }
+        Optional<Account> checkuserAccount = accountService.findByAccountName(user.getUsername());
+        Account userAccount;
+        if(checkuserAccount.isPresent()){
+            userAccount = checkuserAccount.get();
+        }else{
+            return "redirect:/account/order?error=Invalid input for destination.";
+        }
+
+        String strorderID = request.getParameter("orderID");
+        Long orderID = Long.parseLong(strorderID);
+        Optional<MyOrder> checkmyorder = myorderService.getOrderById(orderID);
+        MyOrder myorder;
+        if(checkmyorder.isPresent()){
+            myorder = checkmyorder.get();
+        }else{
+            return "redirect:/account/order?error=Invalid input for destination.";
+        }
+
+        List<MyPackage> realpackages = myPackageService.findPackagesByOrderID(myorder.getOrderID());
+        boolean checkavailablepackage = false;
+        for(int i = 0;i<realpackages.size();i++){
+            if(realpackages.get(i).getStatus() == DELIVERING){
+                checkavailablepackage = true;
+                break;
+            }
+        }
+        if(!checkavailablepackage){
+            return "redirect:/account/order?error=All the packages are out for delivery.";
+        }
+        myorder.setDestinationX(destinationForm.getNewDestinationX());
+        myorder.setDestinationY(destinationForm.getNewDestinationY());
+        myorderService.updateOrder(orderID, myorder);
+        return "redirect:/account/order?success=Destination updated successfully.";
     }
 }

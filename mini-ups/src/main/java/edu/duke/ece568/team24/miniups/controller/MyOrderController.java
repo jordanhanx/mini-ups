@@ -24,7 +24,9 @@ public class MyOrderController {
     @GetMapping(path = "create")
     public void createOrders() {
 
-        Account account = new Account(1L, "david green", "123456", "david123@gmail.com", "ADMIN");
+//        Account account = new Account(1L, "david green", "123456", "david123@gmail.com", "ADMIN");
+        Account account = new Account();
+        account.setAccountID(1L);
         MyOrder myorder = new MyOrder(7L, 12, 65, account);
         myorderService.createOrder(myorder);
         MyOrder myorder0 = new MyOrder(10L, 100, 88, account);
