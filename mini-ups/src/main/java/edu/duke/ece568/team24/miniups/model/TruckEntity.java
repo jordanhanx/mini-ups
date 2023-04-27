@@ -20,9 +20,7 @@ public class TruckEntity {
 
     private String status;
 
-    @ManyToOne()
-    @JoinColumn(name = "fk_target_ware_house_id")
-    private WarehouseEntity targetWareHouse;
+    private Integer targetWarehouseId;
 
     @OneToMany(mappedBy = "truckEntity")
     private List<PackageEntity> packages = new ArrayList<>();
@@ -65,12 +63,12 @@ public class TruckEntity {
         this.status = status;
     }
 
-    public WarehouseEntity getTargetWareHouse() {
-        return targetWareHouse;
+    public Integer getTargetWarehouseId() {
+        return targetWarehouseId;
     }
 
-    public void setTargetWareHouse(WarehouseEntity targetWareHouse) {
-        this.targetWareHouse = targetWareHouse;
+    public void setTargetWarehouseId(Integer targetWarehouseId) {
+        this.targetWarehouseId = targetWarehouseId;
     }
 
     public List<PackageEntity> getPackages() {

@@ -19,7 +19,7 @@ public class OrderDto {
             if (orderEntity.getPackages() != null) {
                 orderEntity.getPackages().stream().forEach((p) -> {
                     PackageDto packageDto = PackageDto.mapper(p);
-                    packageDto.setOrderEntity(orderDto);
+                    packageDto.setOrderDto(orderDto);
                     packages.add(packageDto);
                 });
             }
@@ -42,7 +42,7 @@ public class OrderDto {
 
     private Date lastUpdatedTime;
 
-    private List<PackageDto> packages = new ArrayList<>();
+    private List<PackageDto> packages;
 
     public OrderDto(Integer id, String status, Integer destinationX, Integer destinationY, String ownerUsername,
             Date createdTime, Date lastUpdatedTime) {
