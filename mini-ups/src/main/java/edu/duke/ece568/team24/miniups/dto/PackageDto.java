@@ -2,20 +2,33 @@ package edu.duke.ece568.team24.miniups.dto;
 
 import java.util.Date;
 
+import edu.duke.ece568.team24.miniups.model.OrderEntity;
 import edu.duke.ece568.team24.miniups.model.PackageEntity;
+import edu.duke.ece568.team24.miniups.model.TruckEntity;
 
 public class PackageDto {
 
-    public static PackageDto mapper(PackageEntity packageEntity) {
-        if (packageEntity == null) {
+    public static PackageDto mapper(PackageEntity p) {
+        if (p == null) {
             return null;
         } else {
-            return new PackageDto(packageEntity.getId(), packageEntity.getTrackingNumber(),
-                    packageEntity.getDescription(), packageEntity.getStatus(),
-                    packageEntity.getOriginX(), packageEntity.getOriginY(), packageEntity.getLoadedTime(),
-                    packageEntity.getLastUpdatedTime(),
-                    OrderDto.mapper(packageEntity.getOrderEntity()),
-                    TruckDto.mapper(packageEntity.getTruckEntity()));
+            OrderEntity order = p.getOrderEntity();
+            TruckEntity truck = p.getTruckEntity();
+            if (truck == null) {
+                return new PackageDto(p.getId(), p.getTrackingNumber(),
+                        p.getDescription(), p.getStatus(),
+                        p.getOriginX(), p.getOriginY(), p.getLoadedTime(),
+                        p.getLastUpdatedTime(), order.getId(), 0,
+                        order.getDestinationX(), order.getDestinationY(),
+                        order.getDestinationX(), order.getDestinationY());
+            } else {
+                return new PackageDto(p.getId(), p.getTrackingNumber(),
+                        p.getDescription(), p.getStatus(),
+                        p.getOriginX(), p.getOriginY(), p.getLoadedTime(),
+                        p.getLastUpdatedTime(), order.getId(), truck.getId(),
+                        truck.getRealX(), truck.getRealY(),
+                        order.getDestinationX(), order.getDestinationY());
+            }
         }
     }
 
@@ -35,14 +48,23 @@ public class PackageDto {
 
     private Date lastUpdatedTime;
 
-    private OrderDto orderDto;
+    private Integer orderId;
 
-    private TruckDto truckDto;
+    private Integer truckId;
+
+    private Integer currX;
+
+    private Integer currY;
+
+    private Integer destinationX;
+
+    private Integer destinationY;
 
     private Double remainDistance;
 
     public PackageDto(Long id, Long trackingNumber, String description, String status, Integer originX, Integer originY,
-            Date loadedTime, Date lastUpdatedTime, OrderDto orderDto, TruckDto truckDto) {
+            Date loadedTime, Date lastUpdatedTime, Integer orderId, Integer truckId, Integer currX, Integer currY,
+            Integer destinationX, Integer destinationY) {
         this.id = id;
         this.trackingNumber = trackingNumber;
         this.description = description;
@@ -51,12 +73,14 @@ public class PackageDto {
         this.originY = originY;
         this.loadedTime = loadedTime;
         this.lastUpdatedTime = lastUpdatedTime;
-        this.orderDto = orderDto;
-        this.truckDto = truckDto;
+        this.orderId = orderId;
+        this.truckId = truckId;
+        this.currX = currX;
+        this.currY = currY;
+        this.destinationX = destinationX;
+        this.destinationY = destinationY;
 
-        this.remainDistance = truckDto == null ? 0
-                : Math.sqrt(Math.pow(truckDto.getRealX() - orderDto.getDestinationX(), 2)
-                        + Math.pow(truckDto.getRealY() - orderDto.getDestinationY(), 2));
+        this.remainDistance = Math.sqrt(Math.pow(currX - destinationX, 2) + Math.pow(currY - destinationY, 2));
     }
 
     public Long getId() {
@@ -123,20 +147,52 @@ public class PackageDto {
         this.lastUpdatedTime = lastUpdatedTime;
     }
 
-    public OrderDto getOrderDto() {
-        return orderDto;
+    public Integer getOrderId() {
+        return orderId;
     }
 
-    public void setOrderDto(OrderDto orderDto) {
-        this.orderDto = orderDto;
+    public void setOrderId(Integer orderId) {
+        this.orderId = orderId;
     }
 
-    public TruckDto getTruckDto() {
-        return truckDto;
+    public Integer getTruckId() {
+        return truckId;
     }
 
-    public void setTruckDto(TruckDto truckDto) {
-        this.truckDto = truckDto;
+    public void setTruckId(Integer truckId) {
+        this.truckId = truckId;
+    }
+
+    public Integer getCurrX() {
+        return currX;
+    }
+
+    public void setCurrX(Integer currX) {
+        this.currX = currX;
+    }
+
+    public Integer getCurrY() {
+        return currY;
+    }
+
+    public void setCurrY(Integer currY) {
+        this.currY = currY;
+    }
+
+    public Integer getDestinationX() {
+        return destinationX;
+    }
+
+    public void setDestinationX(Integer destinationX) {
+        this.destinationX = destinationX;
+    }
+
+    public Integer getDestinationY() {
+        return destinationY;
+    }
+
+    public void setDestinationY(Integer destinationY) {
+        this.destinationY = destinationY;
     }
 
     public Double getRemainDistance() {

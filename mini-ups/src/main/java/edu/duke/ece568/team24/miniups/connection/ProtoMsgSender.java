@@ -61,13 +61,14 @@ public class ProtoMsgSender {
         }
     }
 
-    public void postUGoPickup(int truckid, int whid) {
+    public Long postUGoPickup(int truckid, int whid) {
         Long seqNum = seqNumCounter.incrementAndGet();
         UGoPickup goPickup = UGoPickup.newBuilder().setSeqnum(seqNum).setTruckid(truckid).setWhid(whid).build();
         goPickupMap.put(seqNum, goPickup);
+        return seqNum;
     }
 
-    public void postUGoUGoDeliver(int truckid, long packageid, int x, int y) {
+    public Long postUGoDeliver(int truckid, long packageid, int x, int y) {
         long seqNum = seqNumCounter.incrementAndGet();
         UDeliveryLocation deliveryLocation = UDeliveryLocation.newBuilder().setPackageid(packageid).setX(x).setY(y)
                 .build();
@@ -75,57 +76,65 @@ public class ProtoMsgSender {
                 .addAllPackages(List.of(deliveryLocation))
                 .build();
         goDeliverMap.put(seqNum, goDeliver);
+        return seqNum;
     }
 
-    public void postUQuery(int truckid) {
+    public Long postUQuery(int truckid) {
         long seqNum = seqNumCounter.incrementAndGet();
         UQuery query = UQuery.newBuilder().setSeqnum(seqNum).setTruckid(truckid).build();
         queryMap.put(seqNum, query);
+        return seqNum;
     }
 
     public void postAckToWorld(long ack) {
         ackToWorld.add(ack);
     }
 
-    public void postUAConnectedToWorld(int worldid) {
+    public Long postUAConnectedToWorld(int worldid) {
         long seqNum = seqNumCounter.incrementAndGet();
         UAConnectedToWorld connectedToWorld = UAConnectedToWorld.newBuilder().setSeqnum(seqNum).setWorldid(worldid)
                 .build();
         connectedToWorldMap.put(seqNum, connectedToWorld);
+        return seqNum;
     }
 
-    public void postUADestinationUpdated(int orderid, int x, int y) {
+    public Long postUADestinationUpdated(int orderid, int x, int y) {
         long seqNum = seqNumCounter.incrementAndGet();
         UADestinationUpdated destinationUpdated = UADestinationUpdated.newBuilder().setSeqnum(seqNum)
                 .setOrderid(orderid).setDestinationx(x).setDestinationy(y).build();
         destinationUpdatedMap.put(seqNum, destinationUpdated);
+        return seqNum;
     }
 
-    public void postUATruckArrived(int truckid, int whid) {
+    public Long postUATruckArrived(int truckid, int whid) {
         long seqNum = seqNumCounter.incrementAndGet();
         UATruckArrived truckArrived = UATruckArrived.newBuilder().setSeqnum(seqNum).setTruckid(truckid).setWhnum(whid)
                 .build();
         truckArrivedMap.put(seqNum, truckArrived);
+        return seqNum;
     }
 
-    public void postUAOrderDeparture(int orderid, long packageid, int trackingnum) {
+    public Long postUAOrderDeparture(int orderid, long packageid, long trackingnum) {
         long seqNum = seqNumCounter.incrementAndGet();
         UAOrderDeparture orderDeparture = UAOrderDeparture.newBuilder().setSeqnum(seqNum).setOrderid(orderid)
                 .setPackageid(packageid).setTrackingnum(trackingnum).build();
         orderDepartureMap.put(seqNum, orderDeparture);
+        return seqNum;
     }
 
-    public void postUAOrderDelivered(long packageid, int x, int y) {
+    public Long postUAOrderDelivered(long packageid, int x, int y) {
         long seqNum = seqNumCounter.incrementAndGet();
         UAOrderDelivered orderDelivered = UAOrderDelivered.newBuilder().setSeqnum(seqNum).setPackageid(packageid)
                 .setDestinationx(x).setDestinationy(y).build();
         orderDeliveredMap.put(seqNum, orderDelivered);
+        return seqNum;
     }
 
-    public void postErr(String msg, long originseqnum) {
+    public Long postErr(String msg, long originseqnum) {
         long seqNum = seqNumCounter.incrementAndGet();
         Err err = Err.newBuilder().setSeqnum(seqNum).setErr(msg).setOriginseqnum(originseqnum).build();
         errMap.put(seqNum, err);
+        return seqNum;
     }
 
     public void postAckToAmazon(long ack) {

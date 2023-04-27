@@ -53,12 +53,12 @@ public class PackageEntity {
     public PackageEntity() {
     }
 
-    public PackageEntity(Long id, String description, Integer originX, Integer originY, OrderEntity orderEntity,
+    public PackageEntity(Long id, String description, OrderEntity orderEntity,
             TruckEntity truckEntity) {
         this.id = id;
         this.description = description;
-        this.originX = originX;
-        this.originY = originY;
+        this.originX = truckEntity.getRealX();
+        this.originY = truckEntity.getRealY();
         this.orderEntity = orderEntity;
         this.truckEntity = truckEntity;
         this.status = "loaded";

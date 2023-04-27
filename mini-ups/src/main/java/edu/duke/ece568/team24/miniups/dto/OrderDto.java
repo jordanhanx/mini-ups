@@ -19,7 +19,6 @@ public class OrderDto {
             if (orderEntity.getPackages() != null) {
                 orderEntity.getPackages().stream().forEach((p) -> {
                     PackageDto packageDto = PackageDto.mapper(p);
-                    packageDto.setOrderDto(orderDto);
                     packages.add(packageDto);
                 });
             }
