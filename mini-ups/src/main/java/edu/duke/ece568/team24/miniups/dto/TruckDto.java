@@ -10,7 +10,7 @@ public class TruckDto {
         } else {
             return new TruckDto(truckEntity.getId(), truckEntity.getRealX(),
                     truckEntity.getRealY(), truckEntity.getStatus(),
-                    WarehouseDto.mapper(truckEntity.getTargetWareHouse()));
+                    truckEntity.getTargetWarehouseId());
         }
     }
 
@@ -22,14 +22,14 @@ public class TruckDto {
 
     private String status;
 
-    private WarehouseDto targetWareHouse;
+    private Integer targetWarehouseId;
 
-    public TruckDto(Integer id, Integer realX, Integer realY, String status, WarehouseDto targetWareHouse) {
+    public TruckDto(Integer id, Integer realX, Integer realY, String status, Integer targetWarehouseId) {
         this.id = id;
         this.realX = realX;
         this.realY = realY;
         this.status = status;
-        this.targetWareHouse = targetWareHouse;
+        this.targetWarehouseId = targetWarehouseId;
     }
 
     public Integer getId() {
@@ -64,12 +64,12 @@ public class TruckDto {
         this.status = status;
     }
 
-    public WarehouseDto getTargetWareHouse() {
-        return targetWareHouse;
+    public Integer getTargetWarehouseId() {
+        return targetWarehouseId;
     }
 
-    public void setTargetWareHouse(WarehouseDto targetWareHouse) {
-        this.targetWareHouse = targetWareHouse;
+    public void setTargetWarehouseId(Integer targetWarehouseId) {
+        this.targetWarehouseId = targetWarehouseId;
     }
 
 }

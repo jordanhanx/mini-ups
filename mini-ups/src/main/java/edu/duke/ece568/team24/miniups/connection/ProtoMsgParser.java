@@ -16,7 +16,7 @@ public class ProtoMsgParser {
 
     private static final Logger logger = LoggerFactory.getLogger(ProtoMsgParser.class);
 
-    private ProtoMsgSender sendProtoService;
+    private final ProtoMsgSender sendProtoService;
 
     private ConcurrentSkipListSet<Long> worldSeqNumCacheSet = new ConcurrentSkipListSet<>();
     private ConcurrentSkipListSet<Long> amazonSeqNumCacheSet = new ConcurrentSkipListSet<>();

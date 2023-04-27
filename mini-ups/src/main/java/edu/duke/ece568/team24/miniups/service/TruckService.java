@@ -1,11 +1,8 @@
 package edu.duke.ece568.team24.miniups.service;
 
 import edu.duke.ece568.team24.miniups.dto.TruckDto;
-import edu.duke.ece568.team24.miniups.dto.WarehouseDto;
 import edu.duke.ece568.team24.miniups.model.TruckEntity;
-import edu.duke.ece568.team24.miniups.model.WarehouseEntity;
 import edu.duke.ece568.team24.miniups.repository.TruckRepository;
-import edu.duke.ece568.team24.miniups.repository.WarehouseRepository;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,11 +18,8 @@ public class TruckService {
 
     private final TruckRepository truckRepository;
 
-    private final WarehouseRepository warehouseRepository;
-
-    public TruckService(TruckRepository truckRepository, WarehouseRepository warehouseRepository) {
+    public TruckService(TruckRepository truckRepository) {
         this.truckRepository = truckRepository;
-        this.warehouseRepository = warehouseRepository;
     }
 
     public List<TruckDto> createTrucks(int num) {
@@ -56,19 +50,15 @@ public class TruckService {
         return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
     }
 
-    public TruckDto assignATruckToWarehouse(WarehouseDto targetWareHouse) {
-        WarehouseEntity warehouseEntity = warehouseRepository.findById(targetWareHouse.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Not found Warehouse: " + targetWareHouse.getId()));
+    public TruckDto assignATruckToWarehouse(int targetWarehouseId, int whX, int whY) {
         List<TruckEntity> trucks = truckRepository.findByStatusIn(List.of("idle", "delivering"));
         TruckEntity nearestTruck = trucks.stream().min((t1, t2) -> {
-            double distance1 = calculateDistance(t1.getRealX(), t1.getRealY(), warehouseEntity.getX(),
-                    warehouseEntity.getY());
-            double distance2 = calculateDistance(t2.getRealX(), t2.getRealY(), warehouseEntity.getX(),
-                    warehouseEntity.getY());
+            double distance1 = calculateDistance(t1.getRealX(), t1.getRealY(), whX, whY);
+            double distance2 = calculateDistance(t2.getRealX(), t2.getRealY(), whX, whY);
             return Double.compare(distance1, distance2);
         }).orElse(null);
         if (nearestTruck != null) {
-            nearestTruck.setTargetWareHouse(warehouseEntity);
+            nearestTruck.setTargetWarehouseId(targetWarehouseId);
             truckRepository.save(nearestTruck);
         }
         return TruckDto.mapper(nearestTruck);
