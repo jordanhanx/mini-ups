@@ -11,18 +11,18 @@ import edu.duke.ece568.team24.miniups.protobuf.amazonups.AUCommands;
 import edu.duke.ece568.team24.miniups.protobuf.worldups.UResponses;
 
 @Service
-public class ParseProtoService {
+public class ProtoMsgParser {
 
-    private static final Logger logger = LoggerFactory.getLogger(ParseProtoService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProtoMsgParser.class);
 
-    private SendProtoService sendProtoService;
+    private ProtoMsgSender sendProtoService;
 
     private ConcurrentSkipListSet<Long> worldSeqNumCacheSet = new ConcurrentSkipListSet<>();
     private ConcurrentSkipListSet<Long> amazonSeqNumCacheSet = new ConcurrentSkipListSet<>();
     private final int worldSeqNumCacheSize;
     private final int amazonSeqNumCacheSize;
 
-    public ParseProtoService(SendProtoService service,
+    public ProtoMsgParser(ProtoMsgSender service,
             @Value("${simworld.seqnum.cachesize}") String worldSize,
             @Value("${miniamazon.seqnum.cachesize}") String amazonSize) {
         this.sendProtoService = service;

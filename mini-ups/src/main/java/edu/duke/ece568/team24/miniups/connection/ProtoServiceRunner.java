@@ -20,14 +20,14 @@ import edu.duke.ece568.team24.miniups.protobuf.amazonups.*;
 import edu.duke.ece568.team24.miniups.protobuf.worldups.*;
 
 @Component
-public class ServerRunner implements CommandLineRunner {
+public class ProtoServiceRunner implements CommandLineRunner {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServerRunner.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProtoServiceRunner.class);
 
     private final ThreadPoolTaskExecutor executor;
     private final ThreadPoolTaskScheduler scheduler;
-    private final ParseProtoService parseProtoService;
-    private final SendProtoService sendProtoService;
+    private final ProtoMsgParser parseProtoService;
+    private final ProtoMsgSender sendProtoService;
 
     private final String amazonHost;
     private final int amazonPort;
@@ -42,8 +42,8 @@ public class ServerRunner implements CommandLineRunner {
     private InputStream fromWorld;
     private long worldid;
 
-    public ServerRunner(ThreadPoolTaskExecutor executor, ThreadPoolTaskScheduler scheduler,
-            ParseProtoService parseProtoService, SendProtoService sendProtoService,
+    public ProtoServiceRunner(ThreadPoolTaskExecutor executor, ThreadPoolTaskScheduler scheduler,
+            ProtoMsgParser parseProtoService, ProtoMsgSender sendProtoService,
             @Value("${miniamazon.host}") String amazonHost, @Value("${miniamazon.port}") String amazonPort,
             @Value("${simworld.host}") String worldHost, @Value("${simworld.port}") String worldPort) {
 
