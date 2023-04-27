@@ -2,6 +2,7 @@ package edu.duke.ece568.team24.miniups.service;
 
 import edu.duke.ece568.team24.miniups.model.AccountEntity;
 import edu.duke.ece568.team24.miniups.repository.AccountRepository;
+import edu.duke.ece568.team24.miniups.dto.AccountDto;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -22,39 +23,44 @@ public class AccountService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public AccountEntity createAccount(String username, String password, String role) {
-        return accountRepository
-                .saveAndFlush(new AccountEntity(username, passwordEncoder.encode(password), null, role));
+    public AccountDto createAccount(String username, String password, String role) {
+        return AccountDto.mapper(
+                accountRepository
+                        .save(new AccountEntity(username, passwordEncoder.encode(password), null, role)));
     }
 
-    public AccountEntity createAccount(String username, String password, String role, String email) {
-        return accountRepository
-                .saveAndFlush(new AccountEntity(username, passwordEncoder.encode(password), email, role));
+    public AccountDto createAccount(String username, String password, String role, String email) {
+        return AccountDto.mapper(
+                accountRepository
+                        .save(new AccountEntity(username, passwordEncoder.encode(password), email, role)));
     }
 
-    public AccountEntity updatePassword(String username, String newPassword) {
-        AccountEntity account = accountRepository.findByUsername(username);
-        if (account == null) {
-            throw new EntityNotFoundException("Not found user: " + username);
-        }
+    public AccountDto findByUsername(String username) {
+        return AccountDto.mapper(accountRepository.findByUsername(username).orElse(null));
+    }
+
+    public AccountDto findByEmail(String email) {
+        return AccountDto.mapper(accountRepository.findByEmail(email).orElse(null));
+    }
+
+    public boolean matchPassword(String username, String oldPassword) {
+        AccountEntity account = accountRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("Not found Account: " + username));
+        return passwordEncoder.matches(oldPassword, account.getPassword());
+    }
+
+    public AccountDto updatePassword(String username, String newPassword) {
+        AccountEntity account = accountRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("Not found Account: " + username));
         account.setPassword(passwordEncoder.encode(newPassword));
-        return accountRepository.saveAndFlush(account);
+        return AccountDto.mapper(accountRepository.save(account));
     }
 
-    public AccountEntity updateEmail(String username, String newEmail) {
-        AccountEntity account = accountRepository.findByUsername(username);
-        if (account == null) {
-            throw new EntityNotFoundException("Not found user: " + username);
-        }
+    public AccountDto updateEmail(String username, String newEmail) {
+        AccountEntity account = accountRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("Not found Account: " + username));
         account.setEmail(newEmail);
-        return accountRepository.saveAndFlush(account);
+        return AccountDto.mapper(accountRepository.save(account));
     }
 
-    public AccountEntity findByUsername(String username) {
-        return accountRepository.findByUsername(username);
-    }
-
-    public AccountEntity findByEmail(String email) {
-        return accountRepository.findByEmail(email);
-    }
 }

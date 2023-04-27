@@ -1,64 +1,58 @@
 package edu.duke.ece568.team24.miniups.service;
 
-import edu.duke.ece568.team24.miniups.model.MyPackage;
-import edu.duke.ece568.team24.miniups.model.Truck;
+import edu.duke.ece568.team24.miniups.dto.TruckDto;
+import edu.duke.ece568.team24.miniups.dto.WarehouseDto;
+import edu.duke.ece568.team24.miniups.model.TruckEntity;
 import edu.duke.ece568.team24.miniups.repository.TruckRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import edu.duke.ece568.team24.miniups.repository.WarehouseRepository;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import static edu.duke.ece568.team24.miniups.model.myenum.TruckStatus.IDLE;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 
-// @Service
-// @Transactional
-// public class TruckService {
+import javax.persistence.EntityNotFoundException;
 
-// @Autowired
-// private final TruckRepository truckRepository;
+@Service
+@Transactional
+public class TruckService {
 
-// public TruckService(TruckRepository truckRepository) {
-// this.truckRepository = truckRepository;
-// }
+    private final TruckRepository truckRepository;
 
-// public void createTruck(Truck truck) {
-// // Account account = new Account("david","123456");
-// // accountRepository.save(account);
-// // MyOrder myorder = new MyOrder(11,22,account);
-// // myorderRepository.save(myorder);
-// // Truck truck = new Truck(0,1, IDLE);
-// // truckRepository.save(truck);
-// truckRepository.save(truck);
+    private final WarehouseRepository warehouseRepository;
 
-// }
+    public TruckService(TruckRepository truckRepository, WarehouseRepository warehouseRepository) {
+        this.truckRepository = truckRepository;
+        this.warehouseRepository = warehouseRepository;
+    }
 
-// public Truck updateTruck(Long id, Truck rhstruck) {
-// return truckRepository.findById(id).map(
-// Truck -> {
-// // Truck.setTruckID(rhstruck.getTruckID());
-// Truck.setRealX(rhstruck.getRealX());
-// Truck.setRealY(rhstruck.getRealY());
-// Truck.setStatus(rhstruck.getStatus());
-// return truckRepository.save(Truck);
-// }).orElseThrow(() -> new NoSuchElementException("Cannot find this truck"));
-// }
+    public List<TruckDto> createTrucks(int num) {
+        List<TruckDto> trucks = new ArrayList<>();
+        for (int i = 0; i < num; ++i) {
+            trucks.add(TruckDto.mapper(truckRepository.save(new TruckEntity())));
+        }
+        return trucks;
+    }
 
-// public List<Truck> getAllMyTruck() {
-// return truckRepository.findAll();
-// }
+    public TruckDto findById(int id) {
+        return TruckDto.mapper(truckRepository.findById(id).orElse(null));
+    }
 
-// public Optional<Truck> getTruckById(Long id) {
-// return truckRepository.findById(id);
-// }
+    public TruckDto updateTruck(int id, int x, int y, String status) {
+        TruckEntity truck = truckRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Not found Truck: " + id));
+        truck.setRealX(x);
+        truck.setRealY(y);
+        truck.setStatus(status);
+        return TruckDto.mapper(truckRepository.save(truck));
+    }
 
-// public void deleteAllTruck() {
-// truckRepository.deleteAll();
-// }
-
-// public void deleteTruckById(Long id) {
-// truckRepository.deleteById(id);
-// }
-
-// }
+    public TruckDto assignTargetWarehouse(int id, WarehouseDto targetWareHouse) {
+        TruckEntity truck = truckRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Not found Truck: " + id));
+        truck.setTargetWareHouse(warehouseRepository.findById(targetWareHouse.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Not found Warehouse: " + targetWareHouse.getId())));
+        return TruckDto.mapper(truckRepository.save(truck));
+    }
+}

@@ -1,51 +1,39 @@
-package edu.duke.ece568.team24.miniups.model;
+package edu.duke.ece568.team24.miniups.dto;
 
 import java.util.Date;
 
-import javax.persistence.*;
+import edu.duke.ece568.team24.miniups.model.AccountEntity;
 
-@Entity
-@Table(name = "accounts")
-public class AccountEntity {
+public class AccountDto {
 
-    @Id
-    @SequenceGenerator(name = "account_sequence", sequenceName = "account_sequence", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "account_sequence")
+    public static AccountDto mapper(AccountEntity accountEntity) {
+        if (accountEntity == null) {
+            return null;
+        } else {
+            return new AccountDto(accountEntity.getId(), accountEntity.getUsername(), accountEntity.getEmail(),
+                    accountEntity.getRole(), accountEntity.getCreatedTime(), accountEntity.getLastLoggedInTime());
+        }
+    }
+
     private Long id;
 
     private String username;
-
-    private String password;
 
     private String email;
 
     private String role;
 
-    @Temporal(TemporalType.TIMESTAMP)
     private Date createdTime;
 
-    @Temporal(TemporalType.TIMESTAMP)
     private Date lastLoggedInTime;
 
-    @PrePersist
-    protected void onCreate() {
-        createdTime = new Date();
-        lastLoggedInTime = createdTime;
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        lastLoggedInTime = new Date();
-    }
-
-    public AccountEntity() {
-    }
-
-    public AccountEntity(String username, String password, String email, String role) {
+    public AccountDto(Long id, String username, String email, String role, Date createdTime, Date lastLoggedInTime) {
+        this.id = id;
         this.username = username;
-        this.password = password;
         this.email = email;
         this.role = role;
+        this.createdTime = createdTime;
+        this.lastLoggedInTime = lastLoggedInTime;
     }
 
     public Long getId() {
@@ -62,14 +50,6 @@ public class AccountEntity {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getEmail() {

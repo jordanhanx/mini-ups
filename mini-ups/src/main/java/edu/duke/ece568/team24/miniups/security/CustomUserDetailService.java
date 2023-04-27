@@ -23,7 +23,8 @@ public class CustomUserDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        AccountEntity account = accountRepository.findByUsername(username);
+        AccountEntity account = accountRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Username Not Found"));
         if (account == null) {
             throw new UsernameNotFoundException("Invalid username or password");
         } else {
