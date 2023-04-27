@@ -35,6 +35,10 @@ public class TruckService {
                 .orElseThrow(() -> new EntityNotFoundException("Not found Truck with ID:" + id)));
     }
 
+    public List<TruckDto> findAll() {
+        return truckRepository.findAll().stream().map(TruckDto::mapper).toList();
+    }
+
     public TruckDto updateTruckStatus(int id, int x, int y, String status) {
         TruckEntity truck = truckRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Not found Truck: " + id));
