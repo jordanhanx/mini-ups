@@ -35,12 +35,14 @@ public class PackageDto {
 
     private Date lastUpdatedTime;
 
-    private OrderDto orderEntity;
+    private OrderDto orderDto;
 
-    private TruckDto truckEntity;
+    private TruckDto truckDto;
+
+    private Double remainDistance;
 
     public PackageDto(Long id, Long trackingNumber, String description, String status, Integer originX, Integer originY,
-            Date loadedTime, Date lastUpdatedTime, OrderDto orderEntity, TruckDto truckEntity) {
+            Date loadedTime, Date lastUpdatedTime, OrderDto orderDto, TruckDto truckDto) {
         this.id = id;
         this.trackingNumber = trackingNumber;
         this.description = description;
@@ -49,8 +51,12 @@ public class PackageDto {
         this.originY = originY;
         this.loadedTime = loadedTime;
         this.lastUpdatedTime = lastUpdatedTime;
-        this.orderEntity = orderEntity;
-        this.truckEntity = truckEntity;
+        this.orderDto = orderDto;
+        this.truckDto = truckDto;
+
+        this.remainDistance = truckDto == null ? 0
+                : Math.sqrt(Math.pow(truckDto.getRealX() - orderDto.getDestinationX(), 2)
+                        + Math.pow(truckDto.getRealY() - orderDto.getDestinationY(), 2));
     }
 
     public Long getId() {
@@ -117,20 +123,28 @@ public class PackageDto {
         this.lastUpdatedTime = lastUpdatedTime;
     }
 
-    public OrderDto getOrderEntity() {
-        return orderEntity;
+    public OrderDto getOrderDto() {
+        return orderDto;
     }
 
-    public void setOrderEntity(OrderDto orderEntity) {
-        this.orderEntity = orderEntity;
+    public void setOrderDto(OrderDto orderDto) {
+        this.orderDto = orderDto;
     }
 
-    public TruckDto getTruckEntity() {
-        return truckEntity;
+    public TruckDto getTruckDto() {
+        return truckDto;
     }
 
-    public void setTruckEntity(TruckDto truckEntity) {
-        this.truckEntity = truckEntity;
+    public void setTruckDto(TruckDto truckDto) {
+        this.truckDto = truckDto;
+    }
+
+    public Double getRemainDistance() {
+        return remainDistance;
+    }
+
+    public void setRemainDistance(Double remainDistance) {
+        this.remainDistance = remainDistance;
     }
 
 }

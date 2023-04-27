@@ -1,5 +1,6 @@
 package edu.duke.ece568.team24.miniups.dto;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -11,10 +12,19 @@ public class OrderDto {
         if (orderEntity == null) {
             return null;
         } else {
-            return new OrderDto(orderEntity.getId(), orderEntity.getStatus(), orderEntity.getDestinationX(),
-                    orderEntity.getDestinationY(),
-                    orderEntity.getOwnerUsername(), orderEntity.getCreatedTime(), orderEntity.getLastUpdatedTime(),
-                    null);
+            OrderDto orderDto = new OrderDto(orderEntity.getId(), orderEntity.getStatus(),
+                    orderEntity.getDestinationX(), orderEntity.getDestinationY(), orderEntity.getOwnerUsername(),
+                    orderEntity.getCreatedTime(), orderEntity.getLastUpdatedTime());
+            List<PackageDto> packages = new ArrayList<>();
+            if (orderEntity.getPackages() != null) {
+                orderEntity.getPackages().stream().forEach((p) -> {
+                    PackageDto packageDto = PackageDto.mapper(p);
+                    packageDto.setOrderEntity(orderDto);
+                    packages.add(packageDto);
+                });
+            }
+            orderDto.setPackages(packages);
+            return orderDto;
         }
     }
 
@@ -32,10 +42,10 @@ public class OrderDto {
 
     private Date lastUpdatedTime;
 
-    private List<PackageDto> packages;
+    private List<PackageDto> packages = new ArrayList<>();
 
     public OrderDto(Integer id, String status, Integer destinationX, Integer destinationY, String ownerUsername,
-            Date createdTime, Date lastUpdatedTime, List<PackageDto> packages) {
+            Date createdTime, Date lastUpdatedTime) {
         this.id = id;
         this.status = status;
         this.destinationX = destinationX;
@@ -43,7 +53,6 @@ public class OrderDto {
         this.ownerUsername = ownerUsername;
         this.createdTime = createdTime;
         this.lastUpdatedTime = lastUpdatedTime;
-        this.packages = packages;
     }
 
     public Integer getId() {

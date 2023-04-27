@@ -3,6 +3,7 @@ package edu.duke.ece568.team24.miniups.service;
 import edu.duke.ece568.team24.miniups.dto.TruckDto;
 import edu.duke.ece568.team24.miniups.dto.WarehouseDto;
 import edu.duke.ece568.team24.miniups.model.TruckEntity;
+import edu.duke.ece568.team24.miniups.model.WarehouseEntity;
 import edu.duke.ece568.team24.miniups.repository.TruckRepository;
 import edu.duke.ece568.team24.miniups.repository.WarehouseRepository;
 
@@ -36,23 +37,50 @@ public class TruckService {
     }
 
     public TruckDto findById(int id) {
-        return TruckDto.mapper(truckRepository.findById(id).orElse(null));
+        return TruckDto.mapper(truckRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Not found Truck with ID:" + id)));
     }
 
-    public TruckDto updateTruck(int id, int x, int y, String status) {
+    public TruckDto updateTruckStatus(int id, int x, int y, String status) {
         TruckEntity truck = truckRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Not found Truck: " + id));
         truck.setRealX(x);
         truck.setRealY(y);
-        truck.setStatus(status);
+        truck.setStatus(status.toLowerCase());
         return TruckDto.mapper(truckRepository.save(truck));
     }
 
-    public TruckDto assignTargetWarehouse(int id, WarehouseDto targetWareHouse) {
-        TruckEntity truck = truckRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Not found Truck: " + id));
-        truck.setTargetWareHouse(warehouseRepository.findById(targetWareHouse.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Not found Warehouse: " + targetWareHouse.getId())));
-        return TruckDto.mapper(truckRepository.save(truck));
+    private static double calculateDistance(int x1, int y1, int x2, int y2) {
+        int deltaX = x1 - x2;
+        int deltaY = y1 - y2;
+        return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    }
+
+    public TruckDto assignATruckToWarehouse(WarehouseDto targetWareHouse) {
+        WarehouseEntity warehouseEntity = warehouseRepository.findById(targetWareHouse.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Not found Warehouse: " + targetWareHouse.getId()));
+        List<TruckEntity> trucks = truckRepository.findByStatusIn(List.of("idle", "delivering"));
+        TruckEntity nearestTruck = trucks.stream().min((t1, t2) -> {
+            double distance1 = calculateDistance(t1.getRealX(), t1.getRealY(), warehouseEntity.getX(),
+                    warehouseEntity.getY());
+            double distance2 = calculateDistance(t2.getRealX(), t2.getRealY(), warehouseEntity.getX(),
+                    warehouseEntity.getY());
+            return Double.compare(distance1, distance2);
+        }).orElse(null);
+        if (nearestTruck != null) {
+            nearestTruck.setTargetWareHouse(warehouseEntity);
+            truckRepository.save(nearestTruck);
+        }
+        return TruckDto.mapper(nearestTruck);
+    }
+
+    public List<TruckDto> dispatchAllReadyTrucks() {
+        List<TruckEntity> allTrucks = truckRepository.findAll();
+        return allTrucks.stream()
+                .filter(t -> t.getStatus().equalsIgnoreCase("arrive warehouse"))
+                .filter(t -> t.getPackages().size() > 0)
+                .peek(t -> t.getPackages().stream().forEach(p -> p.setStatus("out for delivery")))
+                .map(TruckDto::mapper)
+                .toList();
     }
 }
