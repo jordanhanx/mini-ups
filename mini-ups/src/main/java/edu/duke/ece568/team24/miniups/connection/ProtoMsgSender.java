@@ -163,7 +163,7 @@ public class ProtoMsgSender {
         if (!isEmpty) {
             UCommands msgToWorld = cmdsBldr.build();
             msgToWorld.writeDelimitedTo(toWorld);
-            logger.debug("\nTo World:\n" + msgToWorld.toString());
+            logger.debug("\n[To World]\n" + msgToWorld.toString());
             ackToWorld.clear();
         }
     }
@@ -202,7 +202,7 @@ public class ProtoMsgSender {
         if (!isEmpty) {
             UACommands msgToAmazon = cmdsBldr.build();
             msgToAmazon.writeDelimitedTo(toAmazon);
-            logger.debug("\nTo Amazon:\n" + msgToAmazon.toString());
+            logger.debug("\n[To Amazon]\n" + msgToAmazon.toString());
             ackToAmazon.clear();
         }
     }
