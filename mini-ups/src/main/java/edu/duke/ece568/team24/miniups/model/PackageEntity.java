@@ -61,6 +61,7 @@ public class PackageEntity {
         this.originY = originY;
         this.orderEntity = orderEntity;
         this.truckEntity = truckEntity;
+        this.status = "loaded";
     }
 
     public Long getId() {

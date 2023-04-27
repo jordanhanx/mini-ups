@@ -3,10 +3,11 @@ package edu.duke.ece568.team24.miniups.service;
 import edu.duke.ece568.team24.miniups.dto.WarehouseDto;
 import edu.duke.ece568.team24.miniups.model.WarehouseEntity;
 import edu.duke.ece568.team24.miniups.repository.WarehouseRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -18,8 +19,14 @@ public class WarehouseService {
         this.warehouseRepository = warehouseRepository;
     }
 
-    public WarehouseDto createWarehouse(int id, int x, int y) {
-        return WarehouseDto.mapper(warehouseRepository.save(new WarehouseEntity(id, x, y)));
+    public WarehouseDto createWarehouseIfNotExists(int id, int x, int y) {
+        WarehouseEntity warehouseEntity = warehouseRepository.findById(id).orElse(null);
+        if (warehouseEntity == null) {
+            return WarehouseDto.mapper(warehouseRepository.save(new WarehouseEntity(id, x, y)));
+        } else {
+            return WarehouseDto.mapper(warehouseEntity);
+        }
+
     }
 
     public WarehouseDto findById(Integer id) {
