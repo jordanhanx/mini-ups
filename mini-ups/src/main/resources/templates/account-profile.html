@@ -3,7 +3,7 @@
     layout:decorate="~{layout}">
 
 <main layout:fragment="main">
-    <div class="container mt-5">
+    <div class="container mt-4">
         <h1>User Profile</h1>
         <hr>
         <form>
@@ -34,7 +34,8 @@
             </div>
             <div class="form-group row">
                 <div class="col-sm-12">
-                    <button type="button" class="btn btn-danger float-right" id="logout-btn">Logout</button>
+                    <a type="button" class="btn btn-danger float-right" id="logout-btn"
+                        th:href="@{/account/logout}">Logout</a>
                 </div>
             </div>
         </form>
@@ -45,7 +46,7 @@
         aria-labelledby="change-email-modal-label" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <form method="post" th:action="@{/profile/email/update}">
+                <form method="post" th:action="@{/account/profile/email/update}" th:object="${emailForm}">
                     <div class="modal-header">
                         <h5 class="modal-title" id="change-email-modal-label">Change Email</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -54,8 +55,9 @@
                     </div>
                     <div class="modal-body">
                         <div class="form-group">
-                            <label for="newEmail">New Email:</label>
-                            <input type="email" class="form-control" id="newEmail" placeholder="Enter new email">
+                            <label for="email">New Email:</label>
+                            <input type="email" class="form-control" id="email" name="email"
+                                placeholder="Enter new email" th:field="*{email}">
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -64,14 +66,13 @@
                 </form>
             </div>
         </div>
-
     </div>
     <!-- Change Password Modal -->
     <div class="modal fade" id="change-password-modal" tabindex="-1" role="dialog"
         aria-labelledby="change-password-modal-label" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <form method="post" th:action="@{/profile/password/update}">
+                <form method="post" th:action="@{/account/profile/password/update}" th:object="${passwordForm}">
                     <div class="modal-header">
                         <h5 class="modal-title" id="change-password-modal-label">Change Password</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -81,18 +82,18 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="oldPassword">Current Password:</label>
-                            <input type="password" class="form-control" id="oldPassword"
-                                placeholder="Enter current password">
+                            <input type="password" class="form-control" id="oldPassword" name="oldPassword"
+                                placeholder="Enter current password" th:field="*{oldPassword}">
                         </div>
                         <div class="form-group">
                             <label for="newPassword">New Password:</label>
-                            <input type="password" class="form-control" id="newPassword"
-                                placeholder="Enter new password">
+                            <input type="password" class="form-control" id="newPassword" name="newPassword"
+                                placeholder="Enter new password" th:field="*{newPassword}">
                         </div>
                         <div class="form-group">
                             <label for="confirmPassword">Confirm Password:</label>
-                            <input type="password" class="form-control" id="confirmPassword"
-                                placeholder="Confirm new password">
+                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword"
+                                placeholder="Confirm new password" th:field="*{confirmPassword}">
                         </div>
                     </div>
                     <div class="modal-footer">
