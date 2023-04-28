@@ -11,16 +11,28 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import edu.duke.ece568.team24.miniups.dto.AccountDto;
-import edu.duke.ece568.team24.miniups.service.AccountService;
+import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Arrays;
+
+import javax.servlet.http.HttpServletRequest;
+
+import edu.duke.ece568.team24.miniups.dto.*;
+import edu.duke.ece568.team24.miniups.service.*;
+
 
 @Controller
 public class AuthController {
 
     private AccountService accountService;
+    private OrderService orderService;
+    private PackageService packageService;
 
-    public AuthController(AccountService accountService) {
+    public AuthController(AccountService accountService, OrderService orderService, PackageService packageService) {
         this.accountService = accountService;
+        this.orderService = orderService;
+        this.packageService = packageService;
     }
 
     @GetMapping("/account/signup")
@@ -95,5 +107,72 @@ public class AuthController {
             accountService.updatePassword(user.getUsername(), passwordForm.getConfirmPassword());
             return "redirect:/account/profile?success=Password updated successfully.";
         }
+    }
+
+    @GetMapping("/account/order")
+    public String getOrders(@AuthenticationPrincipal UserDetails user, Model model) {
+
+        // 输入accountid即可查询
+
+        AccountDto accountDto = accountService.findByUsername(user.getUsername());
+        if(accountDto == null){
+            return "index";
+        }
+
+        List<OrderDto> orders = orderService.findByOwner(accountDto.getUsername());
+
+//        for(int i = 0;i<realorders.size();i++){
+//            CombineMyOrder order = new CombineMyOrder();
+//            order.setOrderID(realorders.get(i).getOrderID());
+//            order.setDestinationX(realorders.get(i).getDestinationX());
+//            order.setDestinationY(realorders.get(i).getDestinationY());
+//
+//            List<MyPackage> realpackages = myPackageService.findPackagesByOrderID(realorders.get(i).getOrderID());
+//            order.setPackages(realpackages);
+//            orders.add(order);
+//        }
+
+        model.addAttribute("orders",orders);
+        model.addAttribute("destinationForm", new DestinationForm());
+
+        return "order-list";
+    }
+
+    @PostMapping("/account/order/destinationupdate")
+    public String postOrderDestinationUpdate(@AuthenticationPrincipal UserDetails user,
+                                                @Valid @ModelAttribute("destinationForm") DestinationForm destinationForm,
+                                                BindingResult result, Model model, HttpServletRequest request) {
+        if (result.hasErrors()) {
+            return "redirect:/account/order?error=Invalid input for destination.";
+        }
+
+        AccountDto accountDto = accountService.findByUsername(user.getUsername());
+        if(accountDto == null){
+            return "redirect:/account/order?error=Invalid input for destination.";
+        }
+
+        String strorderID = request.getParameter("orderID");
+        int id = Integer.parseInt(strorderID);
+        OrderDto orderDto = orderService.findById(id);
+        if(orderDto == null){
+            return "redirect:/account/order?error=Invalid input for destination.";
+        }
+
+        boolean checkavailablepackage = false;
+        for(int i = 0;i<orderDto.getPackages().size();i++){
+            if(!orderDto.getPackages().get(i).getStatus().equals("delivered")){
+                checkavailablepackage = true;
+                break;
+            }
+        }
+        if(!checkavailablepackage){
+            return "redirect:/account/order?error=All the packages are out for delivery.";
+        }
+
+        OrderDto updatedorderDto = orderService.updateDestination(id, destinationForm.getNewDestinationX(), destinationForm.getNewDestinationY());
+
+        // 发更改送货地址的消息给amazon
+
+        return "redirect:/account/order?success=Destination updated successfully.";
     }
 }
