@@ -128,23 +128,23 @@
             </thead>
             <tbody>
             <tr th:each="order, iterStat : ${orders}">
-                <td th:text="${order.orderID}"></td>
+                <td th:text="${order.id}"></td>
                 <td th:text="${'(' + order.destinationX + ',' + order.destinationY + ')'}"></td>
                 <td>
                     <button type="button" class="btn btn-outline-success btn-sm change-address-btn"
-                            data-toggle="modal" data-target="#change-address-modal" th:data-order-id="${order.orderID}">Edit
+                            data-toggle="modal" data-target="#change-address-modal" th:data-order-id="${order.id}">Edit
                         Address</button>
                 </td>
                 <td>
                     <button type="button" class="btn btn-outline-primary btn-sm accordion-toggle"
-                            data-toggle="collapse" th:attr="data-target='#order'+${order.orderID}+'-packages'">Show
+                            data-toggle="collapse" th:attr="data-target='#order'+${order.id}+'-packages'">Show
 <!--                            data-toggle="collapse" th:attr="data-target='#order'+${iterStat.index}+'-packages'">Show-->
                         Packages</button>
                 </td>
             </tr>
             <tr th:each="order : ${orders}">
                 <td colspan="4" class="hiddenRow">
-                    <div class="collapse" th:id="'order'+${order.orderID}+'-packages'">
+                    <div class="collapse" th:id="'order'+${order.id}+'-packages'">
                         <table class="table table-hover">
                             <thead>
                             <tr>
@@ -157,14 +157,14 @@
                             </thead>
                             <tbody>
                             <tr th:each="package : ${order.packages}">
-                                <td th:text="${package.packageID}"></td>
+                                <td th:text="${package.trackingNumber}"></td>
                                 <td th:text="${package.description}"></td>
                                 <td th:text="${package.status}"></td>
                                 <td th:text="${'(' + package.originX + ',' + package.originY + ')'}"></td>
                                 <td>
                                     <form method="get" th:action="@{/package/detail}" class="detail-form">
                                         <input type="hidden" th:name="trackingNumber"
-                                               th:value="${package.packageID}" />
+                                               th:value="${package.trackingNumber}" />
                                         <button type="submit" class="btn btn-primary btn-sm">Detail</button>
                                     </form>
                                 </td>
