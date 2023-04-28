@@ -46,7 +46,7 @@ public class PackageService {
         }
 
         public PackageDto findById(long id) {
-                return PackageDto.mapper(packageRepository.findByTrackingNumber(id)
+                return PackageDto.mapper(packageRepository.findById(id)
                                 .orElseThrow(() -> new EntityNotFoundException("Not found Package with ID:" + id)));
         }
 
