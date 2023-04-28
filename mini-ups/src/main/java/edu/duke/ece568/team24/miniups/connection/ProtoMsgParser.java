@@ -85,6 +85,7 @@ public class ProtoMsgParser {
         parseCompletions(worldResponses.getCompletionsList());
         parseDelivereds(worldResponses.getDeliveredList());
         parseWorldErrors(worldResponses.getErrorList());
+        orderService.updateAllOrdersStatus();
     }
 
     public void parseProtoFromAmazon(AUCommands amazonCmds) {
@@ -95,6 +96,7 @@ public class ProtoMsgParser {
         parseRequestTrucks(amazonCmds.getRequesttruckList());
         parseOrderLoadeds(amazonCmds.getOrderloadedList());
         parseAmazonErrors(amazonCmds.getErrorList());
+        orderService.updateAllOrdersStatus();
     }
 
     public void parseACKs(List<Long> acks) {
