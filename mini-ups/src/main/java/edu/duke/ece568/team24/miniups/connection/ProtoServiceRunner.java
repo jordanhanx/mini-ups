@@ -65,56 +65,55 @@ public class ProtoServiceRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // connectToAmazon(amazonHost, amazonPort);
-        // connectToWorld(worldHost, worldPort);
-        // replyToAmazon();
+        connectToAmazon(amazonHost, amazonPort);
+        connectToWorld(worldHost, worldPort);
+        replyToAmazon();
 
-        // logger.info("\n[UPS] listen from [AMAZON]");
-        // executor.execute(() -> {
-        // while (true) {
-        // try {
-        // AUCommands cmds = AUCommands.parseDelimitedFrom(fromAmazon);
-        // logger.debug("\n[From AMAZON]\n" + cmds.toString());
-        // protoMsgParser.parseProtoFromAmazon(cmds);
-        // } catch (Exception e) {
-        // logger.error("[From AMAZON]" + ProtoMsgParser.getCausedError(e));
-        // }
-        // }
-        // });
+        logger.info("[UPS] listen from [AMAZON]");
+        executor.execute(() -> {
+            while (true) {
+                try {
+                    AUCommands cmds = AUCommands.parseDelimitedFrom(fromAmazon);
+                    logger.debug("[From AMAZON]\n" + cmds.toString());
+                    protoMsgParser.parseProtoFromAmazon(cmds);
+                } catch (Exception e) {
+                    logger.error("[From AMAZON]" + ProtoMsgParser.getCausedError(e));
+                }
+            }
+        });
 
-        // logger.info("\n[UPS] listen from [WORLD]");
-        // executor.execute(() -> {
-        // while (true) {
-        // try {
-        // UResponses responses = UResponses.parseDelimitedFrom(fromWorld);
-        // logger.debug("\n[From WORLD]\n" + responses.toString());
-        // protoMsgParser.parseProtoFromWorld(responses);
-        // } catch (Exception e) {
-        // logger.error("[From WORLD]" + ProtoMsgParser.getCausedError(e));
-        // // reConnectWorld(worldHost, worldPort);
-        // }
-        // }
-        // });
+        logger.info("[UPS] listen from [WORLD]");
+        executor.execute(() -> {
+            while (true) {
+                try {
+                    UResponses responses = UResponses.parseDelimitedFrom(fromWorld);
+                    // logger.debug("[From WORLD]\n" + responses.toString());
+                    protoMsgParser.parseProtoFromWorld(responses);
+                } catch (Exception e) {
+                    logger.error("[From WORLD]" + ProtoMsgParser.getCausedError(e));
+                    // reConnectWorld(worldHost, worldPort);
+                }
+            }
+        });
 
-        // logger.info("[UPS] send periadically to [AMAZON]");
-        // scheduler.scheduleAtFixedRate(() -> {
-        // try {
-        // protoMsgSender.sendProtoToAmazon(toAmazon);
-        // } catch (Exception e) {
-        // logger.error("[To AMAZON]" + ProtoMsgParser.getCausedError(e));
-        // }
-        // }, Duration.ofSeconds(5));
+        logger.info("[UPS] send periadically to [AMAZON]");
+        scheduler.scheduleAtFixedRate(() -> {
+            try {
+                protoMsgSender.sendProtoToAmazon(toAmazon);
+            } catch (Exception e) {
+                logger.error("[To AMAZON]" + ProtoMsgParser.getCausedError(e));
+            }
+        }, Duration.ofSeconds(5));
 
-        // logger.info("[UPS] send periadically to [WORLD]");
-        // scheduler.scheduleAtFixedRate(() -> {
-        // try {
-        // truckService.findAll().stream().forEach(t ->
-        // protoMsgSender.postUQuery(t.getId()));
-        // protoMsgSender.sendProtoToWorld(toWorld);
-        // } catch (Exception e) {
-        // logger.error("[To WORLD]" + ProtoMsgParser.getCausedError(e));
-        // }
-        // }, Duration.ofSeconds(5));
+        logger.info("[UPS] send periadically to [WORLD]");
+        scheduler.scheduleAtFixedRate(() -> {
+            try {
+                truckService.findAll().stream().forEach(t -> protoMsgSender.postUQuery(t.getId()));
+                protoMsgSender.sendProtoToWorld(toWorld);
+            } catch (Exception e) {
+                logger.error("[To WORLD]" + ProtoMsgParser.getCausedError(e));
+            }
+        }, Duration.ofSeconds(5));
     }
 
     public List<UInitTruck> initTrucks(int num) {
@@ -127,24 +126,24 @@ public class ProtoServiceRunner implements CommandLineRunner {
     public void connectToAmazon(String amazonHost, int amazonPort)
             throws IOException {
         amazonSocket = new Socket(amazonHost, amazonPort);
-        logger.debug("\n[Connected AMAZON] at " + amazonSocket.toString());
+        logger.debug("[Connected AMAZON] at " + amazonSocket.toString());
         toAmazon = amazonSocket.getOutputStream();
         fromAmazon = amazonSocket.getInputStream();
         AUCommands cmds = AUCommands.parseDelimitedFrom(fromAmazon);
-        logger.debug("\n[From AMAZON]\n" + cmds.toString());
+        logger.debug("[From AMAZON]\n" + cmds.toString());
         AUConnectedToWorld conn = cmds.getConnectedtoworld(0);
         worldid = conn.getWorldid();
         UACommands responseToAmazon = UACommands.newBuilder()
                 .addAcks(conn.getSeqnum())
                 .build();
         responseToAmazon.writeDelimitedTo(toAmazon);
-        logger.debug("\n[To AMAZON]\n" + responseToAmazon.toString());
+        logger.debug("[To AMAZON]\n" + responseToAmazon.toString());
     }
 
     public void connectToWorld(String worldHost, int worldPort)
             throws IOException {
         worldSocket = new Socket(worldHost, worldPort);
-        logger.debug("\n[Connected WORLD] at " + worldSocket.toString());
+        logger.debug("[Connected WORLD] at " + worldSocket.toString());
         toWorld = worldSocket.getOutputStream();
         fromWorld = worldSocket.getInputStream();
         UConnect.newBuilder()
@@ -154,7 +153,7 @@ public class ProtoServiceRunner implements CommandLineRunner {
                 .build()
                 .writeDelimitedTo(toWorld);
         UConnected uConnected = UConnected.parseDelimitedFrom(fromWorld);
-        logger.debug("\n[From WORLD]\n" + uConnected.toString());
+        logger.debug("[From WORLD]\n" + uConnected.toString());
         if (!uConnected.getResult().contains("connected")) {
             logger.error("\n" + uConnected.toString());
             throw new IOException(uConnected.getResult());
@@ -166,7 +165,7 @@ public class ProtoServiceRunner implements CommandLineRunner {
                 .addConnectedtoworld(UAConnectedToWorld.newBuilder().setSeqnum(0).setWorldid(worldid))
                 .build();
         responseToAmazon.writeDelimitedTo(toAmazon);
-        logger.debug("\n[To Amazon]\n" + responseToAmazon.toString());
+        logger.debug("[To Amazon]\n" + responseToAmazon.toString());
     }
 
     public void reConnectWorld(String worldHost, int worldPort) {
@@ -179,9 +178,9 @@ public class ProtoServiceRunner implements CommandLineRunner {
             if (!uConnected.getResult().contains("connected")) {
                 throw new IOException(uConnected.getResult());
             }
-            logger.warn("\n[Reconnected World] at " + worldSocket.toString());
+            logger.warn("[Reconnected World] at " + worldSocket.toString());
         } catch (IOException e) {
-            logger.error("\n[Failed to reconnect World]\n" + ProtoMsgParser.getCausedError(e));
+            logger.error("[Failed to reconnect World]\n" + ProtoMsgParser.getCausedError(e));
         }
     }
 }
