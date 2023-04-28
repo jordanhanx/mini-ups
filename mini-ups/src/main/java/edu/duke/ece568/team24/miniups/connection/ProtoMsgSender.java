@@ -143,7 +143,7 @@ public class ProtoMsgSender {
 
     public void sendProtoToWorld(OutputStream toWorld) throws IOException {
         boolean isEmpty = true;
-        UCommands.Builder cmdsBldr = UCommands.newBuilder();
+        UCommands.Builder cmdsBldr = UCommands.newBuilder().setDisconnect(false);
         if (goPickupMap.size() > 0) {
             cmdsBldr.addAllPickups(goPickupMap.values());
             isEmpty = false;

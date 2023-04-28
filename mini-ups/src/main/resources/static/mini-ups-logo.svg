@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="56" height="66.644">
+    <path
+        d="M8.333 55.062C3.6 51.187 1.1 45.609 1.1 38.947V7.279c7.474-3.962 16.524-5.97 26.9-5.97s19.427 2.008 26.9 5.97v31.668c0 6.662-2.5 12.236-7.233 16.115-4.33 3.549-18.088 9.586-19.668 10.273-1.578-.687-15.336-6.723-19.666-10.273z"
+        fill="#300" />
+    <path
+        d="M53.427 6.907c-3.458-.321-7.05-.533-10.709-.533-13.57 0-28.118 2.917-40.145 13.948v18.855c0 6.141 2.271 11.269 6.586 14.786 3.81 3.1 15.535 8.41 18.841 9.869 3.264-1.437 14.959-6.677 18.836-9.869 4.342-3.578 6.591-8.587 6.591-14.786V6.907"
+        fill="#ffbe00" />
+    <text x="50%" y="70%" font-family="Georgia" font-size="10" font-weight="bold"
+        fill="#000"
+        text-anchor="middle" alignment-baseline="central">mini</text>
+    <text x="50%" y="48%" font-family="Courier New" font-size="24" font-weight="bold"
+        fill="#000"
+        text-anchor="middle" alignment-baseline="central">UPS</text>
+</svg>
