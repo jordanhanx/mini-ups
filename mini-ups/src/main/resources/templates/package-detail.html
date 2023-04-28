@@ -7,19 +7,25 @@
         <h1>Package Details</h1>
         <hr>
         <div class="row my-3">
-            <div class="col-md-6">
+            <div class="col-md">
                 <strong>Tracking Number:</strong>
                 <span th:text="${package.trackingNumber}"></span>
-            </div>
-            <div class="col-md-6">
-                <strong>Shipped From:</strong>
-                <span th:text="${'(' + package.originX + ',' + package.originY + ')'}"></span>
             </div>
         </div>
         <div class="row my-3">
             <div class="col-md-6">
-                <strong>Status:</strong>
-                <span th:text="${package.status}"></span>
+                <strong>Loaded Time:</strong>
+                <p th:text="${package.loadedTime}"></p>
+            </div>
+            <div class="col-md-6">
+                <strong>Last Updated Time:</strong>
+                <span th:text="${package.lastUpdatedTime}"></span>
+            </div>
+        </div>
+        <div class="row my-3">
+            <div class="col-md-6">
+                <strong>Shipped From:</strong>
+                <span th:text="${'(' + package.originX + ',' + package.originY + ')'}"></span>
             </div>
             <div class="col-md-6">
                 <strong>Shipped To:</strong>
@@ -27,9 +33,23 @@
             </div>
         </div>
         <div class="row my-3">
-            <div class="col-md">
+            <div class="col-md-6">
                 <strong>Package Description:</strong>
                 <p th:text="${package.description}"></p>
+            </div>
+            <div class="col-md-6">
+                <strong>Status:</strong>
+                <span th:text="${package.status}"></span>
+            </div>
+        </div>
+        <div class="row my-3">
+            <div class="col-md-6">
+                <strong>Truck Id:</strong>
+                <p th:text="${package.truckId}"></p>
+            </div>
+            <div class="col-md-6">
+                <strong>Remain Distance:</strong>
+                <span th:text="${package.remainDistance}"></span>
             </div>
         </div>
     </div>

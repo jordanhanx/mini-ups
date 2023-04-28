@@ -37,14 +37,17 @@ public class OrderService {
     }
 
     public List<OrderDto> findByOwner(String username) {
-        return orderRepository.findByOwnerUsername(username).stream().map(OrderDto::mapper).toList();
+        return orderRepository.findByOwnerUsername(username).stream()
+                .map(OrderDto::mapper)
+                .sorted((p1, p2) -> p1.getId().compareTo(p2.getId()))
+                .toList();
     }
 
     public OrderDto updateDestination(int id, int destinationX, int destinationY) {
         OrderEntity order = orderRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Not found Order with ID:" + id));
-        if (!order.getStatus().equalsIgnoreCase("created")) {
-            throw new EntityNotFoundException("Order with ID:" + id + "is out for delivery, cannot change address");
+        if (order.getStatus().equalsIgnoreCase("delivered")) {
+            throw new EntityNotFoundException("Order with ID:" + id + "is delivered, cannot change address");
         }
         order.setDestinationX(destinationX);
         order.setDestinationY(destinationY);

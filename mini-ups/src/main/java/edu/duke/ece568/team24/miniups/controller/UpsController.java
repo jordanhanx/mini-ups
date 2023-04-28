@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Arrays;
 import java.util.Optional;
 
+
 @Controller
 public class UpsController {
 
@@ -36,6 +37,16 @@ public class UpsController {
     @GetMapping("/")
     public String getIndex(Model model) {
         return "index";
+    }
+
+    @GetMapping("/services")
+    public String getServices(Model model) {
+        return "services";
+    }
+
+    @GetMapping("/support")
+    public String getSupport(Model model) {
+        return "support";
     }
 
     @GetMapping("/package/detail")

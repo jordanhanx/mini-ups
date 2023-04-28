@@ -11,28 +11,28 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import java.util.Optional;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Arrays;
 
 import javax.servlet.http.HttpServletRequest;
 
+import edu.duke.ece568.team24.miniups.connection.ProtoMsgSender;
 import edu.duke.ece568.team24.miniups.dto.*;
 import edu.duke.ece568.team24.miniups.service.*;
-
 
 @Controller
 public class AuthController {
 
-    private AccountService accountService;
-    private OrderService orderService;
-    private PackageService packageService;
+    private final AccountService accountService;
+    private final OrderService orderService;
+    private final PackageService packageService;
+    private final ProtoMsgSender protoMsgSender;
 
-    public AuthController(AccountService accountService, OrderService orderService, PackageService packageService) {
+    public AuthController(AccountService accountService, OrderService orderService, PackageService packageService,
+            ProtoMsgSender protoMsgSender) {
         this.accountService = accountService;
         this.orderService = orderService;
         this.packageService = packageService;
+        this.protoMsgSender = protoMsgSender;
     }
 
     @GetMapping("/account/signup")
@@ -84,95 +84,67 @@ public class AuthController {
     public String postAccountProfileEmailUpdate(@AuthenticationPrincipal UserDetails user,
             @Valid @ModelAttribute("emailForm") EmailForm emailForm,
             BindingResult result, Model model) {
-        if (result.hasErrors()) {
-            return "redirect:/account/profile?error=Invalid email format.";
-        } else if (emailForm.getEmail() != "" && accountService.findByEmail(emailForm.getEmail()) != null) {
-            return "redirect:/account/profile?error=Email exits.";
+        try {
+            if (result.hasErrors()) {
+                return "redirect:/account/profile?error=Invalid email format.";
+            } else if (emailForm.getEmail() != "" && accountService.findByEmail(emailForm.getEmail()) != null) {
+                return "redirect:/account/profile?error=Email exits.";
+            }
+            accountService.updateEmail(user.getUsername(), emailForm.getEmail());
+            return "redirect:/account/profile?success=Email updated successfully.";
+        } catch (Exception e) {
+            return "redirect:/account/profile?error=" + e.getMessage();
         }
-        accountService.updateEmail(user.getUsername(), emailForm.getEmail());
-        return "redirect:/account/profile?success=Email updated successfully.";
     }
 
     @PostMapping("/account/profile/password/update")
     public String postAccountProfilePasswordUpdate(@AuthenticationPrincipal UserDetails user,
             @Valid @ModelAttribute("passwordForm") PasswordForm passwordForm,
             BindingResult result, Model model) {
-        if (result.hasErrors()) {
-            return "redirect:/account/profile?error=Invalid password format.";
-        } else if (!passwordForm.getnewPassword().equalsIgnoreCase(passwordForm.getConfirmPassword())) {
-            return "redirect:/account/profile?error=Confirm password doesn't match";
-        } else if (!accountService.matchPassword(user.getUsername(), passwordForm.getOldPassword())) {
-            return "redirect:/account/profile?error=Old password doesn't match";
-        } else {
-            accountService.updatePassword(user.getUsername(), passwordForm.getConfirmPassword());
-            return "redirect:/account/profile?success=Password updated successfully.";
+        try {
+            if (result.hasErrors()) {
+                return "redirect:/account/profile?error=Invalid password format.";
+            } else if (!passwordForm.getnewPassword().equalsIgnoreCase(passwordForm.getConfirmPassword())) {
+                return "redirect:/account/profile?error=Confirm password doesn't match";
+            } else if (!accountService.matchPassword(user.getUsername(), passwordForm.getOldPassword())) {
+                return "redirect:/account/profile?error=Old password doesn't match";
+            } else {
+                accountService.updatePassword(user.getUsername(), passwordForm.getConfirmPassword());
+                return "redirect:/account/profile?success=Password updated successfully.";
+            }
+        } catch (Exception e) {
+            return "redirect:/account/profile?error=" + e.getMessage();
         }
     }
 
     @GetMapping("/account/order")
     public String getOrders(@AuthenticationPrincipal UserDetails user, Model model) {
-
-        // 输入accountid即可查询
-
-        AccountDto accountDto = accountService.findByUsername(user.getUsername());
-        if(accountDto == null){
-            return "index";
-        }
-
-        List<OrderDto> orders = orderService.findByOwner(accountDto.getUsername());
-
-//        for(int i = 0;i<realorders.size();i++){
-//            CombineMyOrder order = new CombineMyOrder();
-//            order.setOrderID(realorders.get(i).getOrderID());
-//            order.setDestinationX(realorders.get(i).getDestinationX());
-//            order.setDestinationY(realorders.get(i).getDestinationY());
-//
-//            List<MyPackage> realpackages = myPackageService.findPackagesByOrderID(realorders.get(i).getOrderID());
-//            order.setPackages(realpackages);
-//            orders.add(order);
-//        }
-
-        model.addAttribute("orders",orders);
+        List<OrderDto> orders = orderService.findByOwner(user.getUsername());
+        model.addAttribute("orders", orders);
         model.addAttribute("destinationForm", new DestinationForm());
-
         return "order-list";
     }
 
     @PostMapping("/account/order/destinationupdate")
     public String postOrderDestinationUpdate(@AuthenticationPrincipal UserDetails user,
-                                                @Valid @ModelAttribute("destinationForm") DestinationForm destinationForm,
-                                                BindingResult result, Model model, HttpServletRequest request) {
+            @Valid @ModelAttribute("destinationForm") DestinationForm destinationForm,
+            BindingResult result, Model model, HttpServletRequest request) {
         if (result.hasErrors()) {
             return "redirect:/account/order?error=Invalid input for destination.";
         }
-
-        AccountDto accountDto = accountService.findByUsername(user.getUsername());
-        if(accountDto == null){
-            return "redirect:/account/order?error=Invalid input for destination.";
-        }
-
-        String strorderID = request.getParameter("orderID");
-        int id = Integer.parseInt(strorderID);
-        OrderDto orderDto = orderService.findById(id);
-        if(orderDto == null){
-            return "redirect:/account/order?error=Invalid input for destination.";
-        }
-
-        boolean checkavailablepackage = false;
-        for(int i = 0;i<orderDto.getPackages().size();i++){
-            if(!orderDto.getPackages().get(i).getStatus().equals("delivered")){
-                checkavailablepackage = true;
-                break;
+        try {
+            int id = Integer.parseInt(request.getParameter("orderID"));
+            OrderDto orderDto = orderService.findById(id);
+            if (!orderDto.getStatus().equalsIgnoreCase("created")) {
+                return "redirect:/account/order?error=Cannot change address when/after delivering.";
             }
+            OrderDto updatedorderDto = orderService.updateDestination(id, destinationForm.getNewDestinationX(),
+                    destinationForm.getNewDestinationY());
+            protoMsgSender.postUADestinationUpdated(updatedorderDto.getId(), updatedorderDto.getDestinationX(),
+                    updatedorderDto.getDestinationY());
+            return "redirect:/account/order?success=Destination updated successfully.";
+        } catch (Exception e) {
+            return "redirect:/account/order?error=" + e.getMessage();
         }
-        if(!checkavailablepackage){
-            return "redirect:/account/order?error=All the packages are out for delivery.";
-        }
-
-        OrderDto updatedorderDto = orderService.updateDestination(id, destinationForm.getNewDestinationX(), destinationForm.getNewDestinationY());
-
-        // 发更改送货地址的消息给amazon
-
-        return "redirect:/account/order?success=Destination updated successfully.";
     }
 }

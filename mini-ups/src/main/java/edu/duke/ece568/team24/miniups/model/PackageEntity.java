@@ -43,6 +43,7 @@ public class PackageEntity {
         int randomNum = new Random().nextInt(99999);
         trackingNumber = shiftedTimestamp | randomNum;
         loadedTime = new Date();
+        lastUpdatedTime = loadedTime;
     }
 
     @PreUpdate
@@ -61,7 +62,7 @@ public class PackageEntity {
         this.originY = truckEntity.getRealY();
         this.orderEntity = orderEntity;
         this.truckEntity = truckEntity;
-        this.status = "loaded";
+        this.status = "out for delivery";
     }
 
     public Long getId() {
