@@ -91,7 +91,7 @@ public class ProtoServiceRunner implements CommandLineRunner {
                     protoMsgParser.parseProtoFromWorld(responses);
                 } catch (Exception e) {
                     logger.error("[From WORLD]" + ProtoMsgParser.getCausedError(e));
-                    // reConnectWorld(worldHost, worldPort);
+                    reConnectWorld(worldHost, worldPort);
                 }
             }
         });
@@ -149,7 +149,7 @@ public class ProtoServiceRunner implements CommandLineRunner {
         UConnect.newBuilder()
                 .setWorldid(worldid)
                 .setIsAmazon(false)
-                .addAllTrucks(initTrucks(10))
+                .addAllTrucks(initTrucks(1000))
                 .build()
                 .writeDelimitedTo(toWorld);
         UConnected uConnected = UConnected.parseDelimitedFrom(fromWorld);
