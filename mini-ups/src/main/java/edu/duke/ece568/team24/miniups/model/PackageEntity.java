@@ -43,6 +43,7 @@ public class PackageEntity {
         int randomNum = new Random().nextInt(99999);
         trackingNumber = shiftedTimestamp | randomNum;
         loadedTime = new Date();
+        lastUpdatedTime = loadedTime;
     }
 
     @PreUpdate
