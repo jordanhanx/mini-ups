@@ -1,65 +1,80 @@
 package edu.duke.ece568.team24.miniups.service;
 
-import edu.duke.ece568.team24.miniups.model.MyPackage;
-import edu.duke.ece568.team24.miniups.model.Truck;
+import edu.duke.ece568.team24.miniups.dto.TruckDto;
+import edu.duke.ece568.team24.miniups.model.TruckEntity;
 import edu.duke.ece568.team24.miniups.repository.TruckRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import static edu.duke.ece568.team24.miniups.model.myenum.TruckStatus.IDLE;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+
+import javax.persistence.EntityNotFoundException;
 
 @Service
 @Transactional
 public class TruckService {
 
-    @Autowired
     private final TruckRepository truckRepository;
 
     public TruckService(TruckRepository truckRepository) {
         this.truckRepository = truckRepository;
     }
 
-    public void createTruck(Truck truck) {
-        // Account account = new Account("david","123456");
-        // accountRepository.save(account);
-        // MyOrder myorder = new MyOrder(11,22,account);
-        // myorderRepository.save(myorder);
-        // Truck truck = new Truck(0,1, IDLE);
-        // truckRepository.save(truck);
-        truckRepository.save(truck);
-
+    public List<TruckDto> createTrucks(int num) {
+        List<TruckDto> trucks = new ArrayList<>();
+        for (int i = 0; i < num; ++i) {
+            trucks.add(TruckDto.mapper(truckRepository.save(new TruckEntity())));
+        }
+        return trucks;
     }
 
-    public Truck updateTruck(Long id, Truck rhstruck) {
-        return truckRepository.findById(id).map(
-                Truck -> {
-                    // Truck.setTruckID(rhstruck.getTruckID());
-                    Truck.setRealX(rhstruck.getRealX());
-                    Truck.setRealY(rhstruck.getRealY());
-                    Truck.setStatus(rhstruck.getStatus());
-                    return truckRepository.save(Truck);
-                }).orElseThrow(() -> new NoSuchElementException("Cannot find this truck"));
+    public TruckDto findById(int id) {
+        return TruckDto.mapper(truckRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Not found Truck with ID:" + id)));
     }
 
-    public List<Truck> getAllMyTruck() {
-        return truckRepository.findAll();
+    public List<TruckDto> findAll() {
+        return truckRepository.findAll().stream().map(TruckDto::mapper).toList();
     }
 
-    public Optional<Truck> getTruckById(Long id) {
-        return truckRepository.findById(id);
+    public TruckDto updateTruckStatus(int id, int x, int y, String status) {
+        TruckEntity truck = truckRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Not found Truck: " + id));
+        truck.setRealX(x);
+        truck.setRealY(y);
+        truck.setStatus(status.toLowerCase());
+        return TruckDto.mapper(truckRepository.save(truck));
     }
 
-    public void deleteAllTruck() {
-        truckRepository.deleteAll();
+    private static double calculateDistance(int x1, int y1, int x2, int y2) {
+        int deltaX = x1 - x2;
+        int deltaY = y1 - y2;
+        return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
     }
 
-    public void deleteTruckById(Long id) {
-        truckRepository.deleteById(id);
+    public TruckDto assignATruckToWarehouse(int targetWarehouseId, int whX, int whY) {
+        List<TruckEntity> trucks = truckRepository.findByStatusIn(List.of("idle", "delivering"));
+        TruckEntity nearestTruck = trucks.stream().min((t1, t2) -> {
+            double distance1 = calculateDistance(t1.getRealX(), t1.getRealY(), whX, whY);
+            double distance2 = calculateDistance(t2.getRealX(), t2.getRealY(), whX, whY);
+            return Double.compare(distance1, distance2);
+        }).orElse(null);
+        if (nearestTruck != null) {
+            nearestTruck.setTargetWarehouseId(targetWarehouseId);
+            truckRepository.save(nearestTruck);
+        }
+        return TruckDto.mapper(nearestTruck);
     }
 
-
+    public List<TruckDto> dispatchAllReadyTrucks() {
+        List<TruckEntity> allTrucks = truckRepository.findAll();
+        return allTrucks.stream()
+                .filter(t -> t.getStatus().equalsIgnoreCase("arrive warehouse"))
+                .filter(t -> t.getPackages().size() > 0)
+                .peek(t -> t.getPackages().stream().forEach(p -> p.setStatus("out for delivery")))
+                .map(TruckDto::mapper)
+                .toList();
+    }
 }

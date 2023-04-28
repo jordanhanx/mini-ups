@@ -1,33 +1,61 @@
 package edu.duke.ece568.team24.miniups.connection;
 
+import java.util.List;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import edu.duke.ece568.team24.miniups.protobuf.amazonups.AUCommands;
-import edu.duke.ece568.team24.miniups.protobuf.worldups.UResponses;
+import edu.duke.ece568.team24.miniups.dto.*;
+import edu.duke.ece568.team24.miniups.protobuf.amazonups.*;
+import edu.duke.ece568.team24.miniups.protobuf.worldups.*;
+import edu.duke.ece568.team24.miniups.service.*;
 
 @Service
 public class ProtoMsgParser {
 
     private static final Logger logger = LoggerFactory.getLogger(ProtoMsgParser.class);
 
-    private ProtoMsgSender sendProtoService;
+    public static String getCausedError(Exception e) {
+        Throwable throwable = e;
+        while (throwable.getCause() != null) {
+            throwable = throwable.getCause();
+        }
+        return throwable.getMessage();
+    }
 
-    private ConcurrentSkipListSet<Long> worldSeqNumCacheSet = new ConcurrentSkipListSet<>();
-    private ConcurrentSkipListSet<Long> amazonSeqNumCacheSet = new ConcurrentSkipListSet<>();
+    private final ProtoMsgSender protoMsgSender;
+
+    private final OrderService orderService;
+    private final PackageService packageService;
+    private final TruckService truckService;
+
     private final int worldSeqNumCacheSize;
     private final int amazonSeqNumCacheSize;
 
-    public ProtoMsgParser(ProtoMsgSender service,
+    private ConcurrentSkipListSet<Long> worldSeqNumCacheSet = new ConcurrentSkipListSet<>();
+    private ConcurrentSkipListSet<Long> amazonSeqNumCacheSet = new ConcurrentSkipListSet<>();
+
+    private final int requestTruckHistoryCacheSize;
+    private ConcurrentSkipListMap<Long, AURequestTruck> requestTrucksHistoryMap = new ConcurrentSkipListMap<>();
+    private List<AURequestTruck> requestTrucksRedoList = new CopyOnWriteArrayList<>();
+
+    public ProtoMsgParser(ProtoMsgSender protoMsgSender, OrderService orderService,
+            PackageService packageService, TruckService truckService,
             @Value("${simworld.seqnum.cachesize}") String worldSize,
-            @Value("${miniamazon.seqnum.cachesize}") String amazonSize) {
-        this.sendProtoService = service;
+            @Value("${miniamazon.seqnum.cachesize}") String amazonSize,
+            @Value("${requesttruck.history.cachesize}") String requestTruckHistoryCacheSize) {
+        this.protoMsgSender = protoMsgSender;
+        this.orderService = orderService;
+        this.packageService = packageService;
+        this.truckService = truckService;
         this.worldSeqNumCacheSize = Integer.parseInt(worldSize);
         this.amazonSeqNumCacheSize = Integer.parseInt(amazonSize);
+        this.requestTruckHistoryCacheSize = Integer.parseInt(requestTruckHistoryCacheSize);
     }
 
     public void addToWorldSeqNumCacheSet(long seqNum) {
@@ -44,101 +72,247 @@ public class ProtoMsgParser {
         amazonSeqNumCacheSet.add(seqNum);
     }
 
-    public void parseProtoFromWorld(UResponses responses) {
-        responses.getAcksList().stream()
+    public void addToRequestTrucksHistory(long upsSeqNum, AURequestTruck req) {
+        if (requestTrucksHistoryMap.size() > requestTruckHistoryCacheSize) {
+            requestTrucksHistoryMap.pollFirstEntry();
+        }
+        requestTrucksHistoryMap.put(upsSeqNum, req);
+    }
+
+    public void parseProtoFromWorld(UResponses worldResponses) {
+        parseACKs(worldResponses.getAcksList());
+        parseTruckstatuses(worldResponses.getTruckstatusList()); // update truck status with priority
+        parseCompletions(worldResponses.getCompletionsList());
+        parseDelivereds(worldResponses.getDeliveredList());
+        parseWorldErrors(worldResponses.getErrorList());
+    }
+
+    public void parseProtoFromAmazon(AUCommands amazonCmds) {
+        parseACKs(amazonCmds.getAcksList());
+        parseConnectedToWorlds(amazonCmds.getConnectedtoworldList());
+        parseOrderCreateds(amazonCmds.getOrdercreatedList());
+        redoRequestTrucksInRedoList();
+        parseRequestTrucks(amazonCmds.getRequesttruckList());
+        parseOrderLoadeds(amazonCmds.getOrderloadedList());
+        parseAmazonErrors(amazonCmds.getErrorList());
+    }
+
+    public void parseACKs(List<Long> acks) {
+        acks.stream()
                 .forEach(ack -> {
-                    sendProtoService.removeMsgByACK(ack);
-                    logger.debug(Thread.currentThread().getName() + "\nParsed:" + ack.toString());
+                    protoMsgSender.removeMsgByACK(ack);
                 });
-        responses.getCompletionsList().stream()
-                .peek(c -> {
-                    sendProtoService.postAckToWorld(c.getSeqnum());
-                    logger.debug(Thread.currentThread().getName() + "\nParsed:" + c.toString());
-                })
-                .filter(c -> !worldSeqNumCacheSet.contains(c.getSeqnum())
-                        && c.getStatus().equalsIgnoreCase("ARRIVE WAREHOUSE"))
-                .forEach(c -> {
-                    sendProtoService.postUATruckArrived(c.getTruckid(), 0);
-                    logger.debug(Thread.currentThread().getName() + "\nPostUATruckArrived:");
-                    addToWorldSeqNumCacheSet(c.getSeqnum());
-                });
-        responses.getDeliveredList().stream()
-                .peek(d -> {
-                    sendProtoService.postAckToWorld(d.getSeqnum());
-                    logger.debug(Thread.currentThread().getName() + "\nParsed:" + d.toString());
-                })
-                .filter(d -> !worldSeqNumCacheSet.contains(d.getSeqnum()))
-                .forEach(d -> {
-                    sendProtoService.postUAOrderDelivered(d.getPackageid(), 0, 0);
-                    addToWorldSeqNumCacheSet(d.getSeqnum());
-                });
-        responses.getTruckstatusList().stream()
+        logger.debug("\n[UPS]confirm ACKs:" + acks.toString());
+    }
+
+    public void parseTruckstatuses(List<UTruck> truckstatuses) {
+        truckstatuses.stream()
                 .peek(t -> {
-                    sendProtoService.postAckToWorld(t.getSeqnum());
-                    logger.debug(Thread.currentThread().getName() + "\nParsed:" + t.toString());
+                    protoMsgSender.postAckToWorld(t.getSeqnum());
                 })
-                .filter(d -> !worldSeqNumCacheSet.contains(d.getSeqnum()))
+                .filter(t -> !worldSeqNumCacheSet.contains(t.getSeqnum()))
                 .forEach(t -> {
-                    addToWorldSeqNumCacheSet(t.getSeqnum());
+                    try {
+                        truckService.updateTruckStatus(t.getTruckid(), t.getX(), t.getY(), t.getStatus());
+                        addToWorldSeqNumCacheSet(t.getSeqnum());
+                    } catch (Exception e) {
+                        logger.error(getCausedError(e));
+                    }
                 });
-        responses.getErrorList().stream()
-                .peek(err -> {
-                    sendProtoService.postAckToWorld(err.getSeqnum());
-                    logger.debug(Thread.currentThread().getName() + "\nParsed:" + err.toString());
+        logger.debug("\n[UPS]parseTruckstatuses(), update [" + truckstatuses.size() + "] trucks");
+    }
+
+    public void parseCompletions(List<UFinished> completions) {
+        completions.stream()
+                .peek(c -> {
+                    protoMsgSender.postAckToWorld(c.getSeqnum());
                 })
-                .filter(d -> !worldSeqNumCacheSet.contains(d.getSeqnum()))
-                .forEach(err -> {
-                    addToWorldSeqNumCacheSet(err.getSeqnum());
+                .filter(c -> !worldSeqNumCacheSet.contains(c.getSeqnum()))
+                .peek(c -> {
+                    try {
+                        truckService.updateTruckStatus(c.getTruckid(), c.getX(), c.getY(), c.getStatus());
+                        addToWorldSeqNumCacheSet(c.getSeqnum());
+                        logger.debug("\n[UPS]truckService.updateTruckStatus()");
+                    } catch (Exception e) {
+                        logger.error(getCausedError(e));
+                    }
+                })
+                .filter(c -> c.getStatus().equalsIgnoreCase("ARRIVE WAREHOUSE"))
+                .forEach(c -> {
+                    try {
+                        TruckDto truck = truckService.findById(c.getTruckid());
+                        long upsSeqNum = protoMsgSender.postUATruckArrived(c.getTruckid(),
+                                truck.getTargetWarehouseId());
+                        logger.debug("\n[UPS]postUATruckArrived()[AMAZON], seqNum=" + upsSeqNum);
+                    } catch (Exception e) {
+                        logger.error(getCausedError(e));
+                    }
                 });
     }
 
-    public void parseProtoFromAmazon(AUCommands cmds) {
-        cmds.getAcksList().stream()
-                .forEach(ack -> {
-                    sendProtoService.removeMsgByACK(ack);
-                    logger.debug(Thread.currentThread().getName() + "\nParsed:" + ack.toString());
+    public void parseDelivereds(List<UDeliveryMade> delivereds) {
+        delivereds.stream()
+                .peek(d -> {
+                    protoMsgSender.postAckToWorld(d.getSeqnum());
+                })
+                .filter(d -> !worldSeqNumCacheSet.contains(d.getSeqnum()))
+                .forEach(d -> {
+                    try {
+                        packageService.updateStatus(d.getPackageid(), "delivered");
+                        logger.debug("\n[UPS]packageService.updateStatus()");
+                        PackageDto pack = packageService.findById(d.getPackageid());
+                        long upsSeqNum = protoMsgSender.postUAOrderDelivered(pack.getId(), pack.getCurrX(),
+                                pack.getCurrY());
+                        logger.debug("\n[UPS]postUAOrderDelivered()[AMAZON], seqNum=" + upsSeqNum);
+                        addToWorldSeqNumCacheSet(d.getSeqnum());
+                    } catch (Exception e) {
+                        logger.error(getCausedError(e));
+                    }
                 });
-        cmds.getConnectedtoworldList().stream()
+    }
+
+    public void parseWorldErrors(List<UErr> worldErrors) {
+        worldErrors.stream()
+                .peek(err -> {
+                    protoMsgSender.postAckToWorld(err.getSeqnum());
+                })
+                .filter(err -> !worldSeqNumCacheSet.contains(err.getSeqnum()))
+                .peek(err -> {
+                    logger.warn("\n[UPS]recvWorldErr\n" + err.toString());
+                    addToWorldSeqNumCacheSet(err.getSeqnum());
+                })
+                .filter(err -> requestTrucksHistoryMap.containsKey(err.getOriginseqnum()))
+                .forEach(err -> {
+                    AURequestTruck req = requestTrucksHistoryMap.remove(err.getOriginseqnum());
+                    requestTrucksRedoList.add(req);
+                    logger.warn("\n[UPS]add AURequestTruck into redo list\n" + req.toString());
+                });
+    }
+
+    public void parseConnectedToWorlds(List<AUConnectedToWorld> connectedToWorlds) {
+        connectedToWorlds.stream()
                 .forEach(c -> {
-                    sendProtoService.postAckToAmazon(c.getSeqnum());
-                    logger.debug(Thread.currentThread().getName() + "\nParsed:" + c.toString());
+                    try {
+                        protoMsgSender.postAckToAmazon(c.getSeqnum());
+                        logger.debug("\n[UPS]ignore redundant AUConnectedToWorlds");
+                    } catch (Exception e) {
+                        String causedMsg = getCausedError(e);
+                        logger.error(causedMsg);
+                        protoMsgSender.postErr(causedMsg, c.getSeqnum());
+                    }
                 });
-        cmds.getOrdercreatedList().stream()
+    }
+
+    public void parseOrderCreateds(List<AUOrderCreated> orderCreateds) {
+        orderCreateds.stream()
                 .peek(o -> {
-                    sendProtoService.postAckToAmazon(o.getSeqnum());
-                    logger.debug(Thread.currentThread().getName() + "\nParsed:" + o.toString());
+                    protoMsgSender.postAckToAmazon(o.getSeqnum());
                 })
                 .filter(o -> !amazonSeqNumCacheSet.contains(o.getSeqnum()))
                 .forEach(o -> {
-                    addToAmazonSeqNumCacheSet(o.getSeqnum());
+                    try {
+                        String username = o.hasUpsaccount() ? o.getUpsaccount() : null;
+                        orderService.createOrder(o.getOrderid(), o.getDestinationx(), o.getDestinationy(), username);
+                        logger.debug("\n[UPS]orderService.createOrder()");
+                        addToAmazonSeqNumCacheSet(o.getSeqnum());
+                    } catch (Exception e) {
+                        String causedMsg = getCausedError(e);
+                        logger.error(causedMsg);
+                        protoMsgSender.postErr(causedMsg, o.getSeqnum());
+                    }
                 });
-        cmds.getRequesttruckList().stream()
+    }
+
+    public void redoRequestTrucksInRedoList() {
+        List<AURequestTruck> redoSuccessList = requestTrucksRedoList
+                .stream()
+                .filter(r -> {
+                    try {
+                        TruckDto truck = truckService.assignATruckToWarehouse(r.getWhnum(), r.getX(), r.getY());
+                        if (truck != null) {
+                            long upsSeqNum = protoMsgSender.postUGoPickup(truck.getId(), r.getWhnum());
+                            logger.debug("\n[UPS]postUGoPickup()[WORLD], seqNum=" + upsSeqNum);
+                            addToRequestTrucksHistory(upsSeqNum, r);
+                            logger.debug("\n[UPS]addToRequestTrucksHistory()");
+                            return true;
+                        } else {
+                            logger.warn("\n[UPS][Redo]No available trucks now, redo next time");
+                        }
+                    } catch (Exception e) {
+                        String causedMsg = getCausedError(e);
+                        logger.error(causedMsg);
+                        protoMsgSender.postErr(causedMsg, r.getSeqnum());
+                    }
+                    return false;
+                }).toList();
+        requestTrucksRedoList.removeAll(redoSuccessList);
+    }
+
+    public void parseRequestTrucks(List<AURequestTruck> requestTrucks) {
+        requestTrucks.stream()
                 .peek(r -> {
-                    sendProtoService.postAckToAmazon(r.getSeqnum());
-                    logger.debug(Thread.currentThread().getName() + "\nParsed:" + r.toString());
+                    protoMsgSender.postAckToAmazon(r.getSeqnum());
                 })
                 .filter(r -> !amazonSeqNumCacheSet.contains(r.getSeqnum()))
                 .forEach(r -> {
-                    sendProtoService.postUGoPickup(1, r.getWhnum());
-                    addToAmazonSeqNumCacheSet(r.getSeqnum());
+                    try {
+                        TruckDto truck = truckService.assignATruckToWarehouse(r.getWhnum(), r.getX(), r.getY());
+                        if (truck != null) {
+                            long upsSeqNum = protoMsgSender.postUGoPickup(truck.getId(), r.getWhnum());
+                            logger.debug("\n[UPS]postUGoPickup()[WORLD], seqNum=" + upsSeqNum);
+                            addToRequestTrucksHistory(upsSeqNum, r);
+                            logger.debug("\n[UPS]addToRequestTrucksHistory()");
+                        } else {
+                            requestTrucksRedoList.add(r);
+                            logger.warn("\n[UPS]No available trucks now, redo next time");
+                            logger.warn("\n[UPS]add AURequestTruck into redo list\n" + r.toString());
+                        }
+                        addToAmazonSeqNumCacheSet(r.getSeqnum());
+                    } catch (Exception e) {
+                        String causedMsg = getCausedError(e);
+                        logger.error(causedMsg);
+                        protoMsgSender.postErr(causedMsg, r.getSeqnum());
+                    }
                 });
-        cmds.getOrderloadedList().stream()
+    }
+
+    public void parseOrderLoadeds(List<AUOrderLoaded> orderLoadeds) {
+        orderLoadeds.stream()
                 .peek(ld -> {
-                    sendProtoService.postAckToAmazon(ld.getSeqnum());
-                    logger.debug(Thread.currentThread().getName() + "\nParsed:" + ld.toString());
+                    protoMsgSender.postAckToAmazon(ld.getSeqnum());
                 })
                 .filter(ld -> !amazonSeqNumCacheSet.contains(ld.getSeqnum()))
                 .forEach(ld -> {
-                    sendProtoService.postUGoUGoDeliver(ld.getTruckid(), ld.getPackageid(), 1, 1);
-                    addToAmazonSeqNumCacheSet(ld.getSeqnum());
+                    try {
+                        OrderDto order = orderService.findById(ld.getOrderid());
+                        TruckDto truck = truckService.findById(ld.getTruckid());
+                        PackageDto newPack = packageService.createPackage(ld.getPackageid(), ld.getDescription(), order,
+                                truck);
+                        logger.debug("\n[UPS]packageService.createPackage()");
+                        long upsSeqNumToWorld = protoMsgSender.postUGoDeliver(newPack.getTruckId(), newPack.getId(),
+                                newPack.getDestinationX(), newPack.getDestinationY());
+                        logger.debug("\n[UPS]postUGoUGoDeliver()[WORLD], seqNum=" + upsSeqNumToWorld);
+                        long upsSeqNumToAmazon = protoMsgSender.postUAOrderDeparture(newPack.getOrderId(),
+                                newPack.getId(), newPack.getTrackingNumber());
+                        logger.debug("\n[UPS]postUAOrderDeparture()[AMAZON], seqNum=" + upsSeqNumToAmazon);
+                        addToAmazonSeqNumCacheSet(ld.getSeqnum());
+                    } catch (Exception e) {
+                        String causedMsg = getCausedError(e);
+                        logger.error(causedMsg);
+                        protoMsgSender.postErr(causedMsg, ld.getSeqnum());
+                    }
                 });
-        cmds.getErrorList().stream()
+
+    }
+
+    public void parseAmazonErrors(List<Err> amazonErrors) {
+        amazonErrors.stream()
                 .peek(err -> {
-                    sendProtoService.postAckToAmazon(err.getSeqnum());
-                    logger.debug(Thread.currentThread().getName() + "\nParsed:" + err.toString());
+                    protoMsgSender.postAckToAmazon(err.getSeqnum());
                 })
                 .filter(err -> !amazonSeqNumCacheSet.contains(err.getSeqnum()))
                 .forEach(err -> {
+                    logger.warn("\n[UPS]recvAmazonErrors\n" + err.toString());
                     addToAmazonSeqNumCacheSet(err.getSeqnum());
                 });
     }
