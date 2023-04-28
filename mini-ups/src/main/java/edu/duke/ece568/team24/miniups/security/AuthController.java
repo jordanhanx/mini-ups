@@ -11,16 +11,28 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import edu.duke.ece568.team24.miniups.dto.AccountDto;
-import edu.duke.ece568.team24.miniups.service.AccountService;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import edu.duke.ece568.team24.miniups.connection.ProtoMsgSender;
+import edu.duke.ece568.team24.miniups.dto.*;
+import edu.duke.ece568.team24.miniups.service.*;
 
 @Controller
 public class AuthController {
 
-    private AccountService accountService;
+    private final AccountService accountService;
+    private final OrderService orderService;
+    private final PackageService packageService;
+    private final ProtoMsgSender protoMsgSender;
 
-    public AuthController(AccountService accountService) {
+    public AuthController(AccountService accountService, OrderService orderService, PackageService packageService,
+            ProtoMsgSender protoMsgSender) {
         this.accountService = accountService;
+        this.orderService = orderService;
+        this.packageService = packageService;
+        this.protoMsgSender = protoMsgSender;
     }
 
     @GetMapping("/account/signup")
@@ -72,28 +84,67 @@ public class AuthController {
     public String postAccountProfileEmailUpdate(@AuthenticationPrincipal UserDetails user,
             @Valid @ModelAttribute("emailForm") EmailForm emailForm,
             BindingResult result, Model model) {
-        if (result.hasErrors()) {
-            return "redirect:/account/profile?error=Invalid email format.";
-        } else if (emailForm.getEmail() != "" && accountService.findByEmail(emailForm.getEmail()) != null) {
-            return "redirect:/account/profile?error=Email exits.";
+        try {
+            if (result.hasErrors()) {
+                return "redirect:/account/profile?error=Invalid email format.";
+            } else if (emailForm.getEmail() != "" && accountService.findByEmail(emailForm.getEmail()) != null) {
+                return "redirect:/account/profile?error=Email exits.";
+            }
+            accountService.updateEmail(user.getUsername(), emailForm.getEmail());
+            return "redirect:/account/profile?success=Email updated successfully.";
+        } catch (Exception e) {
+            return "redirect:/account/profile?error=" + e.getMessage();
         }
-        accountService.updateEmail(user.getUsername(), emailForm.getEmail());
-        return "redirect:/account/profile?success=Email updated successfully.";
     }
 
     @PostMapping("/account/profile/password/update")
     public String postAccountProfilePasswordUpdate(@AuthenticationPrincipal UserDetails user,
             @Valid @ModelAttribute("passwordForm") PasswordForm passwordForm,
             BindingResult result, Model model) {
+        try {
+            if (result.hasErrors()) {
+                return "redirect:/account/profile?error=Invalid password format.";
+            } else if (!passwordForm.getnewPassword().equalsIgnoreCase(passwordForm.getConfirmPassword())) {
+                return "redirect:/account/profile?error=Confirm password doesn't match";
+            } else if (!accountService.matchPassword(user.getUsername(), passwordForm.getOldPassword())) {
+                return "redirect:/account/profile?error=Old password doesn't match";
+            } else {
+                accountService.updatePassword(user.getUsername(), passwordForm.getConfirmPassword());
+                return "redirect:/account/profile?success=Password updated successfully.";
+            }
+        } catch (Exception e) {
+            return "redirect:/account/profile?error=" + e.getMessage();
+        }
+    }
+
+    @GetMapping("/account/order")
+    public String getOrders(@AuthenticationPrincipal UserDetails user, Model model) {
+        List<OrderDto> orders = orderService.findByOwner(user.getUsername());
+        model.addAttribute("orders", orders);
+        model.addAttribute("destinationForm", new DestinationForm());
+        return "order-list";
+    }
+
+    @PostMapping("/account/order/destinationupdate")
+    public String postOrderDestinationUpdate(@AuthenticationPrincipal UserDetails user,
+            @Valid @ModelAttribute("destinationForm") DestinationForm destinationForm,
+            BindingResult result, Model model, HttpServletRequest request) {
         if (result.hasErrors()) {
-            return "redirect:/account/profile?error=Invalid password format.";
-        } else if (!passwordForm.getnewPassword().equalsIgnoreCase(passwordForm.getConfirmPassword())) {
-            return "redirect:/account/profile?error=Confirm password doesn't match";
-        } else if (!accountService.matchPassword(user.getUsername(), passwordForm.getOldPassword())) {
-            return "redirect:/account/profile?error=Old password doesn't match";
-        } else {
-            accountService.updatePassword(user.getUsername(), passwordForm.getConfirmPassword());
-            return "redirect:/account/profile?success=Password updated successfully.";
+            return "redirect:/account/order?error=Invalid input for destination.";
+        }
+        try {
+            int id = Integer.parseInt(request.getParameter("orderID"));
+            OrderDto orderDto = orderService.findById(id);
+            if (!orderDto.getStatus().equalsIgnoreCase("created")) {
+                return "redirect:/account/order?error=Cannot change address when/after delivering.";
+            }
+            OrderDto updatedorderDto = orderService.updateDestination(id, destinationForm.getNewDestinationX(),
+                    destinationForm.getNewDestinationY());
+            protoMsgSender.postUADestinationUpdated(updatedorderDto.getId(), updatedorderDto.getDestinationX(),
+                    updatedorderDto.getDestinationY());
+            return "redirect:/account/order?success=Destination updated successfully.";
+        } catch (Exception e) {
+            return "redirect:/account/order?error=" + e.getMessage();
         }
     }
 }

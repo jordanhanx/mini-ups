@@ -67,14 +67,4 @@ public class TruckService {
         }
         return TruckDto.mapper(nearestTruck);
     }
-
-    public List<TruckDto> dispatchAllReadyTrucks() {
-        List<TruckEntity> allTrucks = truckRepository.findAll();
-        return allTrucks.stream()
-                .filter(t -> t.getStatus().equalsIgnoreCase("arrive warehouse"))
-                .filter(t -> t.getPackages().size() > 0)
-                .peek(t -> t.getPackages().stream().forEach(p -> p.setStatus("out for delivery")))
-                .map(TruckDto::mapper)
-                .toList();
-    }
 }
