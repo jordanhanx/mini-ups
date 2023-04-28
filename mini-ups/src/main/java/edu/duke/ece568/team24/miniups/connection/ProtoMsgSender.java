@@ -144,12 +144,15 @@ public class ProtoMsgSender {
     public void sendProtoToWorld(OutputStream toWorld) throws IOException {
         boolean isEmpty = true;
         UCommands.Builder cmdsBldr = UCommands.newBuilder().setDisconnect(false);
+        UCommands.Builder cmdsBldrNoQuery = UCommands.newBuilder().setDisconnect(false);
         if (goPickupMap.size() > 0) {
             cmdsBldr.addAllPickups(goPickupMap.values());
+            cmdsBldrNoQuery.addAllPickups(goPickupMap.values());
             isEmpty = false;
         }
         if (goDeliverMap.size() > 0) {
             cmdsBldr.addAllDeliveries(goDeliverMap.values());
+            cmdsBldrNoQuery.addAllDeliveries(goDeliverMap.values());
             isEmpty = false;
         }
         if (queryMap.size() > 0) {
@@ -163,7 +166,8 @@ public class ProtoMsgSender {
         if (!isEmpty) {
             UCommands msgToWorld = cmdsBldr.build();
             msgToWorld.writeDelimitedTo(toWorld);
-            logger.debug("\n[To World]\n" + msgToWorld.toString());
+            // logger.debug("[To World]\n" + msgToWorld.toString());
+            logger.debug("[To World]\n" + cmdsBldrNoQuery.build().toString());
             ackToWorld.clear();
         }
     }
@@ -202,7 +206,7 @@ public class ProtoMsgSender {
         if (!isEmpty) {
             UACommands msgToAmazon = cmdsBldr.build();
             msgToAmazon.writeDelimitedTo(toAmazon);
-            logger.debug("\n[To Amazon]\n" + msgToAmazon.toString());
+            logger.debug("[To Amazon]\n" + msgToAmazon.toString());
             ackToAmazon.clear();
         }
     }
