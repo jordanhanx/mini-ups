@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+  db:
+    image: postgres:12-alpine3.15
+    environment:
+      POSTGRES_DB: mini_ups_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: passw0rd
+    restart: always
+
+  mini-ups:
+    build:
+      context: mini-ups/
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
