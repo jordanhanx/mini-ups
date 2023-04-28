@@ -4,4 +4,5 @@
 sleep 5
 
 # Start the Java application using "gradle bootRun"
-./gradlew bootRun
+# ./gradlew bootRun
+gradle bootRun

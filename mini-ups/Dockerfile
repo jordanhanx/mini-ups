@@ -1,5 +1,6 @@
 # Use the official Gradle image as the base image
-FROM openjdk:17-alpine
+# FROM openjdk:17-alpine
+FROM gradle:7.6.1-jdk17-alpine
 
 # Set the working directory in the container
 WORKDIR /code
