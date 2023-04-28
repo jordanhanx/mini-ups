@@ -1,6 +1,5 @@
 package edu.duke.ece568.team24.miniups.dto;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -15,13 +14,10 @@ public class OrderDto {
             OrderDto orderDto = new OrderDto(orderEntity.getId(), orderEntity.getStatus(),
                     orderEntity.getDestinationX(), orderEntity.getDestinationY(), orderEntity.getOwnerUsername(),
                     orderEntity.getCreatedTime(), orderEntity.getLastUpdatedTime());
-            List<PackageDto> packages = new ArrayList<>();
-            if (orderEntity.getPackages() != null) {
-                orderEntity.getPackages().stream().forEach((p) -> {
-                    PackageDto packageDto = PackageDto.mapper(p);
-                    packages.add(packageDto);
-                });
-            }
+            List<PackageDto> packages = orderEntity.getPackages().stream()
+                    .sorted((p1, p2) -> p1.getId().compareTo(p2.getId()))
+                    .map(PackageDto::mapper)
+                    .toList();
             orderDto.setPackages(packages);
             return orderDto;
         }

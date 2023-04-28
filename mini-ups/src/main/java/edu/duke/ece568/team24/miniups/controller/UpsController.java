@@ -8,38 +8,65 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import edu.duke.ece568.team24.miniups.model.OrderEntity;
-import edu.duke.ece568.team24.miniups.model.PackageEntity;
+import edu.duke.ece568.team24.miniups.service.*;
+import edu.duke.ece568.team24.miniups.dto.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Arrays;
+import java.util.Optional;
+
 
 @Controller
 public class UpsController {
 
     private static final Logger logger = LoggerFactory.getLogger(UpsController.class);
 
+    private final AccountService accountService;
+    private final OrderService orderService;
+    private final PackageService packageService;
+    private final TruckService truckService;
+
+    public UpsController(AccountService accountService, OrderService orderService, PackageService packageService, TruckService truckService) {
+        this.accountService = accountService;
+        this.orderService = orderService;
+        this.packageService = packageService;
+        this.truckService = truckService;
+    }
+
     @GetMapping("/")
     public String getIndex(Model model) {
         return "index";
     }
 
+    @GetMapping("/services")
+    public String getServices(Model model) {
+        return "services";
+    }
+
+    @GetMapping("/support")
+    public String getSupport(Model model) {
+        return "support";
+    }
+
     @GetMapping("/package/detail")
     public String getDetail(@RequestParam("trackingNumber") String trackNum, Model model) {
         logger.debug("\nTrackingNumber = " + Long.parseLong(trackNum));
-        OrderEntity odr = new OrderEntity();
-        odr.setDestinationX(200);
-        odr.setDestinationY(200);
-        PackageEntity pack = new PackageEntity();
-        pack.setTrackingNumber(Long.parseLong(trackNum));
-        pack.setDescription("Small Box");
-        pack.setStatus("DELIVERING");
-        pack.setOriginX(10);
-        pack.setOriginY(10);
+
+        PackageDto pack = packageService.findByTrackingNumber(Long.parseLong(trackNum));
+        if(pack == null){
+            return "index";
+        }
+
+        OrderDto odr = orderService.findById(pack.getOrderId());
+
+        if(odr == null){
+            return "index";
+        }
+
         model.addAttribute("order", odr);
         model.addAttribute("package", pack);
         return "package-detail";
     }
 
-    @GetMapping("/account/order")
-    public String getOrders(Model model) {
-        return "order-list";
-    }
 }
