@@ -11,12 +11,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import edu.duke.ece568.team24.miniups.service.*;
 import edu.duke.ece568.team24.miniups.dto.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Arrays;
-import java.util.Optional;
-
-
 @Controller
 public class UpsController {
 
@@ -27,7 +21,8 @@ public class UpsController {
     private final PackageService packageService;
     private final TruckService truckService;
 
-    public UpsController(AccountService accountService, OrderService orderService, PackageService packageService, TruckService truckService) {
+    public UpsController(AccountService accountService, OrderService orderService, PackageService packageService,
+            TruckService truckService) {
         this.accountService = accountService;
         this.orderService = orderService;
         this.packageService = packageService;
@@ -52,19 +47,10 @@ public class UpsController {
     @GetMapping("/package/detail")
     public String getDetail(@RequestParam("trackingNumber") String trackNum, Model model) {
         logger.debug("\nTrackingNumber = " + Long.parseLong(trackNum));
-
         PackageDto pack = packageService.findByTrackingNumber(Long.parseLong(trackNum));
-        if(pack == null){
-            return "index";
+        if (pack == null) {
+            return "redirect:/?error=Package not found";
         }
-
-        OrderDto odr = orderService.findById(pack.getOrderId());
-
-        if(odr == null){
-            return "index";
-        }
-
-        model.addAttribute("order", odr);
         model.addAttribute("package", pack);
         return "package-detail";
     }
