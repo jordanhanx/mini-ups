@@ -43,16 +43,18 @@ public class ProtoMsgParser {
     private ConcurrentSkipListSet<Long> worldSeqNumCacheSet = new ConcurrentSkipListSet<>();
     private ConcurrentSkipListSet<Long> amazonSeqNumCacheSet = new ConcurrentSkipListSet<>();
 
-    private final int requestTruckHistoryCacheSize;
+    private final int redoHistoryCacheSize;
     private ConcurrentSkipListMap<Long, AURequestTruck> requestTrucksHistoryMap = new ConcurrentSkipListMap<>();
+    private ConcurrentSkipListMap<Long, AUOrderLoaded> orderLoadedsHistoryMap = new ConcurrentSkipListMap<>();
     private List<AURequestTruck> requestTrucksRedoList = new CopyOnWriteArrayList<>();
+    private List<AUOrderLoaded> orderLoadedsRedoList = new CopyOnWriteArrayList<>();
 
     public ProtoMsgParser(ProtoMsgSender protoMsgSender, OrderService orderService,
             PackageService packageService, TruckService truckService,
             AccountService accountService, EmailService emailService,
             @Value("${simworld.seqnum.cachesize}") String worldSize,
             @Value("${miniamazon.seqnum.cachesize}") String amazonSize,
-            @Value("${requesttruck.history.cachesize}") String requestTruckHistoryCacheSize) {
+            @Value("${redo.history.cachesize}") String redoHistoryCacheSize) {
         this.protoMsgSender = protoMsgSender;
         this.orderService = orderService;
         this.packageService = packageService;
@@ -61,7 +63,7 @@ public class ProtoMsgParser {
         this.emailService = emailService;
         this.worldSeqNumCacheSize = Integer.parseInt(worldSize);
         this.amazonSeqNumCacheSize = Integer.parseInt(amazonSize);
-        this.requestTruckHistoryCacheSize = Integer.parseInt(requestTruckHistoryCacheSize);
+        this.redoHistoryCacheSize = Integer.parseInt(redoHistoryCacheSize);
     }
 
     public void addToWorldSeqNumCacheSet(long seqNum) {
@@ -79,16 +81,24 @@ public class ProtoMsgParser {
     }
 
     public void addToRequestTrucksHistory(long upsSeqNum, AURequestTruck req) {
-        if (requestTrucksHistoryMap.size() > requestTruckHistoryCacheSize) {
+        if (requestTrucksHistoryMap.size() > redoHistoryCacheSize) {
             requestTrucksHistoryMap.pollFirstEntry();
         }
         requestTrucksHistoryMap.put(upsSeqNum, req);
+    }
+
+    public void addToOrderLoadedsHistory(long upsSeqNum, AUOrderLoaded req) {
+        if (orderLoadedsHistoryMap.size() > redoHistoryCacheSize) {
+            orderLoadedsHistoryMap.pollFirstEntry();
+        }
+        orderLoadedsHistoryMap.put(upsSeqNum, req);
     }
 
     public void parseProtoFromWorld(UResponses worldResponses) {
         parseACKs(worldResponses.getAcksList());
         parseTruckstatuses(worldResponses.getTruckstatusList()); // update truck status with priority
         redoRequestTrucksInRedoList();
+        redoOrderLoadedsRedoList();
         parseCompletions(worldResponses.getCompletionsList());
         parseDelivereds(worldResponses.getDeliveredList());
         parseWorldErrors(worldResponses.getErrorList());
@@ -195,11 +205,16 @@ public class ProtoMsgParser {
                     logger.warn("[UPS]recvWorldErr\n" + err.toString());
                     addToWorldSeqNumCacheSet(err.getSeqnum());
                 })
-                .filter(err -> requestTrucksHistoryMap.containsKey(err.getOriginseqnum()))
                 .forEach(err -> {
-                    AURequestTruck req = requestTrucksHistoryMap.remove(err.getOriginseqnum());
-                    requestTrucksRedoList.add(req);
-                    logger.warn("[UPS]add AURequestTruck into redo list\n" + req.toString());
+                    if (requestTrucksHistoryMap.containsKey(err.getOriginseqnum())) {
+                        AURequestTruck req = requestTrucksHistoryMap.remove(err.getOriginseqnum());
+                        requestTrucksRedoList.add(req);
+                        logger.warn("[UPS]add AURequestTruck into redo list\n" + req.toString());
+                    } else if (orderLoadedsHistoryMap.containsKey(err.getOriginseqnum())) {
+                        AUOrderLoaded ld = orderLoadedsHistoryMap.remove(err.getOriginseqnum());
+                        orderLoadedsRedoList.add(ld);
+                        logger.warn("[UPS]add AUOrderLoaded into redo list\n" + ld.toString());
+                    }
                 });
     }
 
@@ -250,13 +265,14 @@ public class ProtoMsgParser {
                             return true;
                         } else {
                             logger.warn("[UPS][Redo]No available trucks now, redo next time");
+                            return false;
                         }
                     } catch (Exception e) {
                         String causedMsg = getCausedError(e);
                         logger.error(causedMsg);
                         protoMsgSender.postErr(causedMsg, r.getSeqnum());
+                        return false;
                     }
-                    return false;
                 }).toList();
         requestTrucksRedoList.removeAll(redoSuccessList);
     }
@@ -289,6 +305,27 @@ public class ProtoMsgParser {
                 });
     }
 
+    public void redoOrderLoadedsRedoList() {
+        List<AUOrderLoaded> redoSuccessList = orderLoadedsRedoList.stream()
+                .filter(ld -> {
+                    try {
+                        PackageDto redoPack = packageService.findById(ld.getPackageid());
+                        long upsSeqNumToWorld = protoMsgSender.postUGoDeliver(redoPack.getTruckId(), redoPack.getId(),
+                                redoPack.getDestinationX(), redoPack.getDestinationY());
+                        logger.info("[UPS][Redo]postUGoUGoDeliver()[WORLD], seqNum=" + upsSeqNumToWorld);
+                        addToOrderLoadedsHistory(upsSeqNumToWorld, ld);
+                        logger.info("[UPS][Redo]addToOrderLoadedsHistory()");
+                        return true;
+                    } catch (Exception e) {
+                        String causedMsg = getCausedError(e);
+                        logger.error(causedMsg);
+                        protoMsgSender.postErr(causedMsg, ld.getSeqnum());
+                        return false;
+                    }
+                }).toList();
+        orderLoadedsRedoList.removeAll(redoSuccessList);
+    }
+
     public void parseOrderLoadeds(List<AUOrderLoaded> orderLoadeds) {
         orderLoadeds.stream()
                 .peek(ld -> {
@@ -305,6 +342,8 @@ public class ProtoMsgParser {
                         long upsSeqNumToWorld = protoMsgSender.postUGoDeliver(newPack.getTruckId(), newPack.getId(),
                                 newPack.getDestinationX(), newPack.getDestinationY());
                         logger.info("[UPS]postUGoUGoDeliver()[WORLD], seqNum=" + upsSeqNumToWorld);
+                        addToOrderLoadedsHistory(upsSeqNumToWorld, ld);
+                        logger.info("[UPS]addToOrderLoadedsHistory()");
                         long upsSeqNumToAmazon = protoMsgSender.postUAOrderDeparture(newPack.getOrderId(),
                                 newPack.getId(), newPack.getTrackingNumber());
                         logger.info("[UPS]postUAOrderDeparture()[AMAZON], seqNum=" + upsSeqNumToAmazon);
@@ -321,7 +360,6 @@ public class ProtoMsgParser {
                         protoMsgSender.postErr(causedMsg, ld.getSeqnum());
                     }
                 });
-
     }
 
     public void parseAmazonErrors(List<Err> amazonErrors) {

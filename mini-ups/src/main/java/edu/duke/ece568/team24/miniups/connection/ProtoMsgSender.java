@@ -206,7 +206,7 @@ public class ProtoMsgSender {
         if (!isEmpty) {
             UACommands msgToAmazon = cmdsBldr.build();
             msgToAmazon.writeDelimitedTo(toAmazon);
-            logger.debug("[To Amazon]\n" + msgToAmazon.toString());
+            logger.info("[To Amazon]\n" + msgToAmazon.toString());
             ackToAmazon.clear();
         }
     }
