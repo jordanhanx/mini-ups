@@ -14,9 +14,9 @@ public class ThreadPoolConfig {
     public ThreadPoolTaskExecutor threadPoolTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(2); // Set the core pool size
-        executor.setMaxPoolSize(2); // Set the maximum pool size
-        executor.setQueueCapacity(100); // Set the queue capacity
-        executor.setThreadNamePrefix("MyRecvThread-"); // Set the thread name prefix
+        executor.setMaxPoolSize(10); // Set the maximum pool size
+        executor.setQueueCapacity(1000); // Set the queue capacity
+        executor.setThreadNamePrefix("MyThread-"); // Set the thread name prefix
         executor.initialize(); // Initialize the executor
         return executor;
     }
