@@ -104,7 +104,7 @@ public class ProtoMsgParser {
                 .forEach(ack -> {
                     protoMsgSender.removeMsgByACK(ack);
                 });
-        // logger.debug("[UPS]confirm ACKs:" + acks.toString());
+        logger.debug("[UPS]confirm ACKs:" + acks.toString());
     }
 
     public void parseTruckstatuses(List<UTruck> truckstatuses) {
@@ -161,11 +161,11 @@ public class ProtoMsgParser {
                 .forEach(d -> {
                     try {
                         packageService.updateStatus(d.getPackageid(), "delivered");
-                        logger.debug("[UPS]packageService.updateStatus()");
+                        logger.info("[UPS]packageService.updateStatus()");
                         PackageDto pack = packageService.findById(d.getPackageid());
                         long upsSeqNum = protoMsgSender.postUAOrderDelivered(pack.getId(), pack.getCurrX(),
                                 pack.getCurrY());
-                        logger.debug("[UPS]postUAOrderDelivered()[AMAZON], seqNum=" + upsSeqNum);
+                        logger.info("[UPS]postUAOrderDelivered()[AMAZON], seqNum=" + upsSeqNum);
                         addToWorldSeqNumCacheSet(d.getSeqnum());
                     } catch (Exception e) {
                         logger.error(getCausedError(e));
@@ -215,7 +215,7 @@ public class ProtoMsgParser {
                     try {
                         String username = o.hasUpsaccount() ? o.getUpsaccount() : null;
                         orderService.createOrder(o.getOrderid(), o.getDestinationx(), o.getDestinationy(), username);
-                        logger.debug("[UPS]orderService.createOrder()");
+                        logger.info("[UPS]orderService.createOrder()");
                         addToAmazonSeqNumCacheSet(o.getSeqnum());
                     } catch (Exception e) {
                         String causedMsg = getCausedError(e);
@@ -233,9 +233,9 @@ public class ProtoMsgParser {
                         TruckDto truck = truckService.assignATruckToWarehouse(r.getWhnum(), r.getX(), r.getY());
                         if (truck != null) {
                             long upsSeqNum = protoMsgSender.postUGoPickup(truck.getId(), r.getWhnum());
-                            logger.debug("[UPS][Redo]postUGoPickup()[WORLD], seqNum=" + upsSeqNum);
+                            logger.info("[UPS][Redo]postUGoPickup()[WORLD], seqNum=" + upsSeqNum);
                             addToRequestTrucksHistory(upsSeqNum, r);
-                            logger.debug("[UPS][Redo]addToRequestTrucksHistory()");
+                            logger.info("[UPS][Redo]addToRequestTrucksHistory()");
                             return true;
                         } else {
                             logger.warn("[UPS][Redo]No available trucks now, redo next time");
@@ -261,9 +261,9 @@ public class ProtoMsgParser {
                         TruckDto truck = truckService.assignATruckToWarehouse(r.getWhnum(), r.getX(), r.getY());
                         if (truck != null) {
                             long upsSeqNum = protoMsgSender.postUGoPickup(truck.getId(), r.getWhnum());
-                            logger.debug("[UPS]postUGoPickup()[WORLD], seqNum=" + upsSeqNum);
+                            logger.info("[UPS]postUGoPickup()[WORLD], seqNum=" + upsSeqNum);
                             addToRequestTrucksHistory(upsSeqNum, r);
-                            logger.debug("[UPS]addToRequestTrucksHistory()");
+                            logger.info("[UPS]addToRequestTrucksHistory()");
                         } else {
                             requestTrucksRedoList.add(r);
                             logger.warn("[UPS]No available trucks now, redo next time");
@@ -290,13 +290,13 @@ public class ProtoMsgParser {
                         TruckDto truck = truckService.findById(ld.getTruckid());
                         PackageDto newPack = packageService.createPackage(ld.getPackageid(), ld.getDescription(), order,
                                 truck);
-                        logger.debug("[UPS]packageService.createPackage()");
+                        logger.info("[UPS]packageService.createPackage()");
                         long upsSeqNumToWorld = protoMsgSender.postUGoDeliver(newPack.getTruckId(), newPack.getId(),
                                 newPack.getDestinationX(), newPack.getDestinationY());
-                        logger.debug("[UPS]postUGoUGoDeliver()[WORLD], seqNum=" + upsSeqNumToWorld);
+                        logger.info("[UPS]postUGoUGoDeliver()[WORLD], seqNum=" + upsSeqNumToWorld);
                         long upsSeqNumToAmazon = protoMsgSender.postUAOrderDeparture(newPack.getOrderId(),
                                 newPack.getId(), newPack.getTrackingNumber());
-                        logger.debug("[UPS]postUAOrderDeparture()[AMAZON], seqNum=" + upsSeqNumToAmazon);
+                        logger.info("[UPS]postUAOrderDeparture()[AMAZON], seqNum=" + upsSeqNumToAmazon);
                         addToAmazonSeqNumCacheSet(ld.getSeqnum());
                     } catch (Exception e) {
                         String causedMsg = getCausedError(e);
