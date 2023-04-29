@@ -78,7 +78,7 @@ public class ProtoServiceRunner implements CommandLineRunner {
             while (true) {
                 try {
                     AUCommands cmds = AUCommands.parseDelimitedFrom(fromAmazon);
-                    logger.debug("[From AMAZON]\n" + cmds.toString());
+                    logger.info("[From AMAZON]\n" + cmds.toString());
                     protoMsgParser.parseProtoFromAmazon(cmds);
                 } catch (Exception e) {
                     logger.error("[From AMAZON]" + ProtoMsgParser.getCausedError(e));
