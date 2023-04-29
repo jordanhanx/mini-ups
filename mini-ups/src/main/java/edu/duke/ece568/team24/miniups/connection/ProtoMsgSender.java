@@ -57,7 +57,7 @@ public class ProtoMsgSender {
         } else if (errMap.containsKey(ack)) {
             errMap.containsKey(ack);
         } else {
-            logger.warn("\nNot found Msg by ACK(" + ack + ")");
+            // logger.warn("\nNot found Msg by ACK(" + ack + ")");
         }
     }
 

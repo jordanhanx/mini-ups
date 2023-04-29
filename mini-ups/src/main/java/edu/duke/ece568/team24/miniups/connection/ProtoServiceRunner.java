@@ -38,6 +38,8 @@ public class ProtoServiceRunner implements CommandLineRunner {
     private final String worldHost;
     private final int worldPort;
 
+    private final int initTruckNum;
+
     private Socket amazonSocket;
     private Socket worldSocket;
     private OutputStream toAmazon;
@@ -49,7 +51,8 @@ public class ProtoServiceRunner implements CommandLineRunner {
     public ProtoServiceRunner(ThreadPoolTaskExecutor executor, ThreadPoolTaskScheduler scheduler,
             ProtoMsgParser protoMsgParser, ProtoMsgSender protoMsgSender, TruckService truckService,
             @Value("${miniamazon.host}") String amazonHost, @Value("${miniamazon.port}") String amazonPort,
-            @Value("${simworld.host}") String worldHost, @Value("${simworld.port}") String worldPort) {
+            @Value("${simworld.host}") String worldHost, @Value("${simworld.port}") String worldPort,
+            @Value("${ups.init.truck.num}") String initTruckNum) {
 
         this.executor = executor;
         this.scheduler = scheduler;
@@ -61,6 +64,7 @@ public class ProtoServiceRunner implements CommandLineRunner {
         this.amazonPort = Integer.parseInt(amazonPort);
         this.worldHost = worldHost;
         this.worldPort = Integer.parseInt(worldPort);
+        this.initTruckNum = Integer.parseInt(initTruckNum);
     }
 
     @Override
@@ -91,7 +95,7 @@ public class ProtoServiceRunner implements CommandLineRunner {
                     protoMsgParser.parseProtoFromWorld(responses);
                 } catch (Exception e) {
                     logger.error("[From WORLD]" + ProtoMsgParser.getCausedError(e));
-                    // reConnectWorld(worldHost, worldPort);
+                    reConnectWorld(worldHost, worldPort);
                 }
             }
         });
@@ -149,7 +153,7 @@ public class ProtoServiceRunner implements CommandLineRunner {
         UConnect.newBuilder()
                 .setWorldid(worldid)
                 .setIsAmazon(false)
-                .addAllTrucks(initTrucks(10))
+                .addAllTrucks(initTrucks(initTruckNum))
                 .build()
                 .writeDelimitedTo(toWorld);
         UConnected uConnected = UConnected.parseDelimitedFrom(fromWorld);
