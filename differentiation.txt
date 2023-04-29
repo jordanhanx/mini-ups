@@ -1,0 +1,18 @@
+﻿ERSS: Project: Mini-UPS
+yx236, xh123
+
+
+1.Flexible Order/Package Structure
+To ensure efficient and dynamic distribution, our software allows for packages within a single order to have independent statuses. This means that packages can be sent from different warehouses and loaded onto various trucks, ultimately belonging to the same order. This feature allows for increased flexibility. For example, user can place an order that includes a bottle of body wash and a pack of dog food. Maybe the body wash will ship from a mini Amazon warehouse in Atlanta and the dog food will ship from Cincinnati. But they all belong to the same order. 
+
+
+2.Intuitive Front-end
+Our software boasts a user-friendly and visually appealing front-end based on Bootstrap, closely resembling the real UPS website. Users can easily track their packages, browse order details, and change shipping address. Package information includes fixed-length tracking numbers, starting points, current locations, destinations, loading times, last updated times, and remaining distances from destinations. Users can also manage their account like changing email and password easily.
+
+
+3.Robust Back-end
+Leveraging SpringBoot, we have developed a robust back-end with a clear MVC structure. We utilize SpringData for implementing ORM and transactional operations within the database. The service abstract layer is responsible for handling requests from both HTTP and protobuf connections. The communication mechanism with Amazon and World Simulator is separated into receivers and senders running on distinct threads, with pipelines parsing incoming messages and concurrent data structures passing and storing outgoing messages. The project takes advantage of Google's protobuf plugin on Gradle for seamless compilation and management.
+
+
+4.Email notifications
+Our delivery management software automatically sends email notifications to users when their packages are loaded onto a truck and delivered. This feature keeps customers informed and engaged throughout the entire delivery process.
