@@ -1,18 +1,21 @@
 Danger Log - Potential System Vulnerabilities
 
 1.Severe Concurrent Occasions
-Our UPS website uses the default transaction isolation of postgres, so it might 
-experience difficulties when facing severe concurrent occasions. This may result 
-in slow response times, possible downtime, and a degraded user experience.
+Because the protobuf is a very lightweight and efficient communication protocol, 
+our UPS back-end processes incoming protobuf messages serially and leverages 
+the default transaction isolation of postgres. However, it might experience difficulties 
+when facing severe concurrent occasions. This may result in slow response times, 
+possible downtime, and a degraded user experience.
 
-Mitigation Steps: utilize optimistic and pessimistic locking
+Mitigation Steps: parse incoming messages in parallel and utilizes optimistic locking
+to ensure database consistency.
 
 
 2.Privilege Escalation
-Our current Docker container is running as root because the Gradle base image requires 
-specific permissions to build and launch the application. This configuration might 
-create a vulnerability in our server, allowing attackers to exploit the container for 
-unauthorized access or malicious activity.
+Our current Docker container is running as root because the Gradle requires specific 
+permissions to build and launch the application. This configuration might create a 
+vulnerability in our server, allowing attackers to exploit the container for unauthorized 
+access or malicious activity.
 
 Mitigation Steps: Implement a least-privilege approach for the container, granting 
 only the necessary permissions to run the application.
