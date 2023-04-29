@@ -91,7 +91,7 @@ public class ProtoServiceRunner implements CommandLineRunner {
             while (true) {
                 try {
                     UResponses responses = UResponses.parseDelimitedFrom(fromWorld);
-                    // logger.debug("[From WORLD]\n" + responses.toString());
+                    logger.debug("[From WORLD]\n" + responses.toString());
                     protoMsgParser.parseProtoFromWorld(responses);
                 } catch (Exception e) {
                     logger.error("[From WORLD]" + ProtoMsgParser.getCausedError(e));
@@ -130,24 +130,24 @@ public class ProtoServiceRunner implements CommandLineRunner {
     public void connectToAmazon(String amazonHost, int amazonPort)
             throws IOException {
         amazonSocket = new Socket(amazonHost, amazonPort);
-        logger.debug("[Connected AMAZON] at " + amazonSocket.toString());
+        logger.info("[Connected AMAZON] at " + amazonSocket.toString());
         toAmazon = amazonSocket.getOutputStream();
         fromAmazon = amazonSocket.getInputStream();
         AUCommands cmds = AUCommands.parseDelimitedFrom(fromAmazon);
-        logger.debug("[From AMAZON]\n" + cmds.toString());
+        logger.info("[From AMAZON]\n" + cmds.toString());
         AUConnectedToWorld conn = cmds.getConnectedtoworld(0);
         worldid = conn.getWorldid();
         UACommands responseToAmazon = UACommands.newBuilder()
                 .addAcks(conn.getSeqnum())
                 .build();
         responseToAmazon.writeDelimitedTo(toAmazon);
-        logger.debug("[To AMAZON]\n" + responseToAmazon.toString());
+        logger.info("[To AMAZON]\n" + responseToAmazon.toString());
     }
 
     public void connectToWorld(String worldHost, int worldPort)
             throws IOException {
         worldSocket = new Socket(worldHost, worldPort);
-        logger.debug("[Connected WORLD] at " + worldSocket.toString());
+        logger.info("[Connected WORLD] at " + worldSocket.toString());
         toWorld = worldSocket.getOutputStream();
         fromWorld = worldSocket.getInputStream();
         UConnect.newBuilder()
@@ -157,7 +157,7 @@ public class ProtoServiceRunner implements CommandLineRunner {
                 .build()
                 .writeDelimitedTo(toWorld);
         UConnected uConnected = UConnected.parseDelimitedFrom(fromWorld);
-        logger.debug("[From WORLD]\n" + uConnected.toString());
+        logger.info("[From WORLD]\n" + uConnected.toString());
         if (!uConnected.getResult().contains("connected")) {
             logger.error("\n" + uConnected.toString());
             throw new IOException(uConnected.getResult());
@@ -169,11 +169,12 @@ public class ProtoServiceRunner implements CommandLineRunner {
                 .addConnectedtoworld(UAConnectedToWorld.newBuilder().setSeqnum(0).setWorldid(worldid))
                 .build();
         responseToAmazon.writeDelimitedTo(toAmazon);
-        logger.debug("[To Amazon]\n" + responseToAmazon.toString());
+        logger.info("[To Amazon]\n" + responseToAmazon.toString());
     }
 
     public void reConnectWorld(String worldHost, int worldPort) {
         try {
+            Thread.sleep(5000);
             worldSocket = new Socket(worldHost, worldPort);
             toWorld = worldSocket.getOutputStream();
             fromWorld = worldSocket.getInputStream();
@@ -183,7 +184,7 @@ public class ProtoServiceRunner implements CommandLineRunner {
                 throw new IOException(uConnected.getResult());
             }
             logger.warn("[Reconnected World] at " + worldSocket.toString());
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.error("[Failed to reconnect World]\n" + ProtoMsgParser.getCausedError(e));
         }
     }

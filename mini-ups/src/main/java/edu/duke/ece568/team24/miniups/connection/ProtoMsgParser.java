@@ -34,6 +34,9 @@ public class ProtoMsgParser {
     private final PackageService packageService;
     private final TruckService truckService;
 
+    private final AccountService accountService;
+    private final EmailService emailService;
+
     private final int worldSeqNumCacheSize;
     private final int amazonSeqNumCacheSize;
 
@@ -46,6 +49,7 @@ public class ProtoMsgParser {
 
     public ProtoMsgParser(ProtoMsgSender protoMsgSender, OrderService orderService,
             PackageService packageService, TruckService truckService,
+            AccountService accountService, EmailService emailService,
             @Value("${simworld.seqnum.cachesize}") String worldSize,
             @Value("${miniamazon.seqnum.cachesize}") String amazonSize,
             @Value("${requesttruck.history.cachesize}") String requestTruckHistoryCacheSize) {
@@ -53,6 +57,8 @@ public class ProtoMsgParser {
         this.orderService = orderService;
         this.packageService = packageService;
         this.truckService = truckService;
+        this.accountService = accountService;
+        this.emailService = emailService;
         this.worldSeqNumCacheSize = Integer.parseInt(worldSize);
         this.amazonSeqNumCacheSize = Integer.parseInt(amazonSize);
         this.requestTruckHistoryCacheSize = Integer.parseInt(requestTruckHistoryCacheSize);
@@ -160,13 +166,19 @@ public class ProtoMsgParser {
                 .filter(d -> !worldSeqNumCacheSet.contains(d.getSeqnum()))
                 .forEach(d -> {
                     try {
-                        packageService.updateStatus(d.getPackageid(), "delivered");
+                        PackageDto pack = packageService.updateStatus(d.getPackageid(), "delivered");
                         logger.info("[UPS]packageService.updateStatus()");
-                        PackageDto pack = packageService.findById(d.getPackageid());
                         long upsSeqNum = protoMsgSender.postUAOrderDelivered(pack.getId(), pack.getCurrX(),
                                 pack.getCurrY());
                         logger.info("[UPS]postUAOrderDelivered()[AMAZON], seqNum=" + upsSeqNum);
                         addToWorldSeqNumCacheSet(d.getSeqnum());
+                        // Send Email to user
+                        OrderDto order = orderService.findById(pack.getOrderId());
+                        AccountDto account = accountService.findByUsername(order.getOwnerUsername());
+                        if (account != null) {
+                            emailService.sendDeliveredEmail(account.getEmail(), account.getUsername(),
+                                    order.getId(), pack.getTrackingNumber(), pack.getLastUpdatedTime());
+                        }
                     } catch (Exception e) {
                         logger.error(getCausedError(e));
                     }
@@ -213,7 +225,7 @@ public class ProtoMsgParser {
                 .filter(o -> !amazonSeqNumCacheSet.contains(o.getSeqnum()))
                 .forEach(o -> {
                     try {
-                        String username = o.hasUpsaccount() ? o.getUpsaccount() : null;
+                        String username = o.hasUpsaccount() ? o.getUpsaccount() : "";
                         orderService.createOrder(o.getOrderid(), o.getDestinationx(), o.getDestinationy(), username);
                         logger.info("[UPS]orderService.createOrder()");
                         addToAmazonSeqNumCacheSet(o.getSeqnum());
@@ -226,8 +238,7 @@ public class ProtoMsgParser {
     }
 
     public void redoRequestTrucksInRedoList() {
-        List<AURequestTruck> redoSuccessList = requestTrucksRedoList
-                .stream()
+        List<AURequestTruck> redoSuccessList = requestTrucksRedoList.stream()
                 .filter(r -> {
                     try {
                         TruckDto truck = truckService.assignATruckToWarehouse(r.getWhnum(), r.getX(), r.getY());
@@ -298,6 +309,12 @@ public class ProtoMsgParser {
                                 newPack.getId(), newPack.getTrackingNumber());
                         logger.info("[UPS]postUAOrderDeparture()[AMAZON], seqNum=" + upsSeqNumToAmazon);
                         addToAmazonSeqNumCacheSet(ld.getSeqnum());
+                        // Send Email to user
+                        AccountDto account = accountService.findByUsername(order.getOwnerUsername());
+                        if (account != null) {
+                            emailService.sendOutForDeliveryEmail(account.getEmail(), account.getUsername(),
+                                    order.getId(), newPack.getTrackingNumber());
+                        }
                     } catch (Exception e) {
                         String causedMsg = getCausedError(e);
                         logger.error(causedMsg);
